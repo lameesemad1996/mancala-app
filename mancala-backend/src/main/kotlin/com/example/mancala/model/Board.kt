@@ -7,8 +7,31 @@ data class Board(
     companion object {
         const val PLAYER_1 = 0
         const val PLAYER_2 = 1
+        val PLAYER_1_PITS = 0..5
+        val PLAYER_2_PITS = 6..11
         const val PLAYER_1_BIG_PIT_INDEX = 6
         const val PLAYER_2_BIG_PIT_INDEX = 13
+
+        /**
+         * Check if the pit is on the current player's side
+         * @param pitIndex The index of the pit
+         * @param currentPlayer The index of the current player - 0 for player 1, 1 for player 2
+         * @return True if the pit is on the current player's side, false otherwise
+         */
+        fun isPitOnCurrentPlayerSide(pitIndex: Int, currentPlayer: Int): Boolean {
+            return pitIndex / 6 == currentPlayer
+        }
+
+        /**
+         * Check if the last stone lands in the big pit of the current player
+         * @param lastPitIndex The index of the pit where the last stone was sown
+         * @param currentPlayer The index of the current player - 0 for player 1, 1 for player 2
+         * @return True if the last stone lands in the big pit of the current player, false otherwise
+         */
+        fun isLastStoneInBigPit(lastPitIndex: Int, currentPlayer: Int): Boolean {
+            return (currentPlayer == PLAYER_1 && lastPitIndex == PLAYER_1_BIG_PIT_INDEX) ||
+                    (currentPlayer == PLAYER_2 && lastPitIndex == PLAYER_2_BIG_PIT_INDEX)
+        }
     }
     
     /**
@@ -17,7 +40,7 @@ data class Board(
      * @param currentPlayer The index of the current player - 0 for player 1, 1 for player 2
      * @return The index of the pit where the last stone was sown
      */
-    fun sowStones(startIndex: Int, currentPlayer: Int): Int {
+    fun moveStones(startIndex: Int, currentPlayer: Int): Int {
         var index = startIndex
         var stones = pits[startIndex].stones
         pits[startIndex].stones = 0
@@ -68,13 +91,23 @@ data class Board(
      * Allocate the remaining stones to the big pit of the losing player
      */
     fun allocateRemainingStones() {
-        for (i in 0..5) {
+        for (i in PLAYER_1_PITS) {
             bigPits[PLAYER_1] += pits[i].stones
             pits[i].stones = 0
         }
-        for (i in 6..11) {
+        for (i in PLAYER_2_PITS) {
             bigPits[PLAYER_2] += pits[i].stones
             pits[i].stones = 0
         }
     }
+
+    /**
+     * Reset the board to the initial state
+     */
+    fun resetBoard() {
+        pits.forEach { it.stones = 6 }
+        bigPits[0] = 0
+        bigPits[1] = 0
+    }
+
 }
