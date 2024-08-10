@@ -54,7 +54,7 @@ class GameService {
      * Get the current game state
      * @return The current game state
      */
-    private fun getGameState(): GameState {
+    fun getGameState(): GameState {
         return GameState(
             pits = board.pits.map { it.stones }.toTypedArray(),
             bigPits = board.bigPits,
