@@ -1,14 +1,4 @@
 .player-info {
-  background-color: #c19a6b;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  text-align: center;
-  max-width: 400px;
-  margin: 0 auto;
-  font-family: 'Arial', sans-serif;
-  border: 2px solid #492314;
-
   .player-score {
     margin-bottom: 15px;
     font-size: 18px;
@@ -33,26 +23,6 @@
     .current-player-name {
       font-weight: bold;
       color: #8c4b2f;
-    }
-  }
-
-  .reset-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    color: white;
-    background-color: #8c4b2f;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-
-    &:hover {
-      background-color: #65311c;
-    }
-
-    &:focus {
-      outline: none;
-      box-shadow: 0 0 5px rgba(108, 60, 42, 0.5);
     }
   }
 }

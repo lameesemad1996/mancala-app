@@ -3,7 +3,12 @@ import "./StartPage.scss";
 import './../index.scss';
 import {useNavigate} from "react-router-dom";
 import {useSnackbar} from "notistack";
+import GameRules from "./GameRules";
 
+/**
+ * StartPage component
+ * Collects player names before starting the game
+ */
 const StartPage = () => {
     const { enqueueSnackbar } = useSnackbar();
     const navigate = useNavigate();
@@ -38,7 +43,10 @@ const StartPage = () => {
                     onChange={(event) => setPlayer2Name(event.target.value)}
                 />
             </div>
-            <button className="start-button" onClick={handleGameStart}>Start Game</button>
+            <div>
+                <button className="game-rules-button" onClick={() => navigate("/rules")}>Game Rules</button>
+                <button className="start-button" onClick={handleGameStart}>Start Game</button>
+            </div>
             <footer>Powered by Bol.com - Built by LK Studios</footer>
         </div>
 

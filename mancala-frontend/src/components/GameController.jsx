@@ -6,6 +6,7 @@ import {Link, useLocation} from 'react-router-dom';
 import './GameController.scss';
 import './../index.scss';
 import { useSnackbar } from 'notistack';
+import GameRules from "./GameRules";
 
 /**
  * GameController component
@@ -16,6 +17,7 @@ const GameController = () => {
     const location = useLocation();
     const { player1Name, player2Name } = location.state || { player1Name: '', player2Name: '' };
     const [gameState, setGameState] = useState(null);
+    const [showRules, setShowRules] = useState(false);
 
     // Fetch the game state from the API once when the component loads
     useEffect(() => {
@@ -27,6 +29,14 @@ const GameController = () => {
         });
     }, []);
 
+
+    /**
+     * Toggles the visibility of the GameRules component
+     */
+    const toggleRules = () => {
+        setShowRules(!showRules);
+    };
+
     /**
      * Handles a move by making an API call and updating the game state
      * @param {number} pitIndex - The index of the pit clicked by the player
@@ -37,7 +47,7 @@ const GameController = () => {
         }).catch((error) => {
             console.error("Error making move:", error);
             if (error.response && error.response.status === 400) {
-                enqueueSnackbar(error.response.data, { variant: "error" }); // Show error message from backend
+                enqueueSnackbar(error.response.data.error, { variant: "error" }); // Show error message from backend
             } else {
                 enqueueSnackbar("An unexpected error occurred.", { variant: "error" });
             }
@@ -57,6 +67,16 @@ const GameController = () => {
     }
 
     if (!gameState) return <div>Loading...</div>;
+    if (showRules) {
+        return (
+            <div>
+                <GameRules />
+                <button
+                    className='back-to-game-button'
+                    onClick={toggleRules}>Back to Game</button>
+            </div>
+        );
+    }
 
     return (
         <div className={'game-controller-container'}>
@@ -64,24 +84,27 @@ const GameController = () => {
             <div className="title player-names"> {player1Name} VS. {player2Name} </div>
 
             <GameBoard className="game-board"
-                pits={gameState.pits}
-                currentPlayer={gameState.currentPlayer}
-                onPitClick={handleMove}
+                       pits={gameState.pits}
+                       currentPlayer={gameState.currentPlayer}
+                       onPitClick={handleMove}
             />
             <br/>
-            <PlayerInfo
-                currentPlayer={gameState.currentPlayer}
-                player1Name={player1Name}
-                player1Score={gameState.pits[6]}
-                player2Name={player2Name}
-                player2Score={gameState.pits[13]}
-                onReset={handleReset}
-            />
-            <Link to="/">
-                <div className="button-container">
-                    <button className="new-game-button" onClick={handleReset}>Start A New Game</button>
-                </div>
-            </Link>
+            <div className="game-status">
+                <PlayerInfo
+                    currentPlayer={gameState.currentPlayer}
+                    player1Name={player1Name}
+                    player1Score={gameState.pits[6]}
+                    player2Name={player2Name}
+                    player2Score={gameState.pits[13]}
+                    onReset={handleReset}
+                />
+                <button className="game-rules-button" onClick={toggleRules}>Game Rules</button>
+                <Link to="/">
+                    <div className="button-container">
+                        <button className="new-game-button" onClick={handleReset}>Start A New Game</button>
+                    </div>
+                </Link>
+            </div>
             <footer>Powered by Bol.com - Built by LK Studios</footer>
         </div>
     )

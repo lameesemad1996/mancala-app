@@ -5,6 +5,10 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
+/**
+ * Global exception handler for the application.
+ * This class will handle exceptions thrown by the application controllers and return an appropriate response.
+ */
 @RestControllerAdvice
 class GlobalExceptionHandler {
 

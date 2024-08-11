@@ -24,7 +24,7 @@ class GameService (private val board: Board = Board()) {
             throw InvalidMoveException("Invalid move. You must select a pit on your side with stones.")
         }
         if(board.pits[pitIndex] == 0) {
-            throw InvalidMoveException("Invalid move. You cannot select an empty pit")
+            throw InvalidMoveException("Invalid move. You cannot select an empty pit.")
         }
 
         val lastPitIndex = board.moveStones(pitIndex, currentPlayer)
