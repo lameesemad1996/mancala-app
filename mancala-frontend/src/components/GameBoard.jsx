@@ -1,5 +1,6 @@
 import React from 'react';
 import Pit from './Pit';
+import './GameBoard.scss';
 
 /**
  * GameBoard component
