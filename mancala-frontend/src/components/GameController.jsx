@@ -40,6 +40,12 @@ const GameController = () => {
 
     return (
         <div>
+            <GameBoard
+                pits={gameState.pits}
+                currentPlayer={gameState.currentPlayer}
+                onPitClick={handleMove}
+            />
+            <br />
             <PlayerInfo
                 currentPlayer = {gameState.currentPlayer}
                 player1Name = "Player 1"
@@ -47,11 +53,6 @@ const GameController = () => {
                 player2Name = "Player 2"
                 player2Score = {gameState.pits[13]}
                 onReset = {handleReset}
-            />
-            <GameBoard
-                pits={gameState.pits}
-                currentPlayer={gameState.currentPlayer}
-                onPitClick={handleMove}
             />
         </div>
     )

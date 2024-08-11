@@ -12,11 +12,17 @@ import React from "react";
  */
 const PlayerInfo = ({ currentPlayer, player1Name, player1Score, player2Name, player2Score, onReset }) => {
     return (
-        <div className={"player-info"}>
-            <div> {player1Name} Score: {player1Score} </div>
-            <div> {player2Name} Score: {player2Score} </div>
-            <div> Current Player: {currentPlayer === 0 ? player1Name : player2Name} </div>
-            <button onClick={onReset}> Reset Game </button>
+        <div className="player-info">
+            <div className="player-score">
+                <span className="player-name">{player1Name}</span> Score: <span className="score">{player1Score}</span>
+            </div>
+            <div className="player-score">
+                <span className="player-name">{player2Name}</span> Score: <span className="score">{player2Score}</span>
+            </div>
+            <div className="current-player">
+                Current Player: <span className="current-player-name">{currentPlayer === 0 ? player1Name : player2Name}</span>
+            </div>
+            <button className="reset-button" onClick={onReset}>Reset Game</button>
         </div>
     );
 };
