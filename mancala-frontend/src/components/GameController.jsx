@@ -50,6 +50,7 @@ const GameController = () => {
             />
             <GameBoard
                 pits={gameState.pits}
+                currentPlayer={gameState.currentPlayer}
                 onPitClick={handleMove}
             />
         </div>

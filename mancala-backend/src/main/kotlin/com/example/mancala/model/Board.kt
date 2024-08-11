@@ -33,6 +33,11 @@ data class Board(
         }
     }
 
+    /**
+     * Move the stones from the pit in a counter-clockwise direction and return the index of the last pit where a stone was sown
+     * @param pitIndex The index of the pit
+     * @return The number of stones in the pit
+     */
     fun moveStones(startIndex: Int, currentPlayer: Int): Int {
         var index = startIndex
         var stones = pits[startIndex]
@@ -54,6 +59,11 @@ data class Board(
         return index
     }
 
+    /**
+     * Capture the stones in the opposite pit and the current pit and add them to the current player's big pit
+     * @param pitIndex The index of the pit
+     * @param currentPlayer The index of the current player - 0 for player 1, 1 for player 2
+     */
     fun captureStones(pitIndex: Int, currentPlayer: Int) {
         val oppositePitIndex = 12 - pitIndex
         val currentPlayerBigPitIndex = if (currentPlayer == PLAYER_1) PLAYER_1_BIG_PIT_INDEX else PLAYER_2_BIG_PIT_INDEX
@@ -62,12 +72,21 @@ data class Board(
         pits[pitIndex] = 0
     }
 
+    /**
+     * Check if the game is over
+     * @param lastPitIndex The index of the last pit where a stone was sown
+     * @param currentPlayer The index of the current player - 0 for player 1, 1 for player 2
+     * @return True if the game is over, false otherwise
+     */
     fun isGameOver(): Boolean {
         val isPlayer1Empty = pits.slice(PLAYER_1_PITS).all { it == 0 }
         val isPlayer2Empty = pits.slice(PLAYER_2_PITS).all { it == 0 }
         return isPlayer1Empty || isPlayer2Empty
     }
 
+    /**
+     * Allocate the remaining stones to the big pit of the losing player
+     */
     fun allocateRemainingStones() {
         pits[PLAYER_1_BIG_PIT_INDEX] += pits.slice(PLAYER_1_PITS).sum()
         pits[PLAYER_2_BIG_PIT_INDEX] += pits.slice(PLAYER_2_PITS).sum()

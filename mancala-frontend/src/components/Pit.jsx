@@ -4,14 +4,15 @@ import React from "react";
  * Pit component
  * Displays a single pit on the Mancala board
  * @param {number} stones - Number of stones in the pit
- * @param {function} onClick - Callback for when the pit is clicked
  * @param {boolean} bigPit - Whether this pit is a big pit (store)
+ * @param {function} onClick - Callback for when the pit is clicked
+ * @param {boolean} clickable - If true, allows the pit to be clicked
  */
-const Pit = ({ stones, onClick, bigPit }) => {
+const Pit = ({ stones, bigPit, onClick, clickable }) => {
     return (
         <div
-            className={`pit ${bigPit ? "big-pit" : ""} ${onClick ? 'clickable' : ''}`}
-            onClick={onClick ? onClick : undefined}>
+            className={`pit ${bigPit ? "big-pit" : ""} ${clickable ? 'clickable' : ''}`}
+            onClick={clickable ? onClick : undefined}>
                 {stones}
         </div>
     );
