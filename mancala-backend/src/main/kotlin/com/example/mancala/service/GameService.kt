@@ -1,5 +1,7 @@
 package com.example.mancala.service
 
+import com.example.mancala.exception.GameOverException
+import com.example.mancala.exception.InvalidMoveException
 import com.example.mancala.model.Board
 import com.example.mancala.model.GameState
 import org.springframework.stereotype.Service
@@ -16,13 +18,13 @@ class GameService (private val board: Board = Board()) {
      */
     fun processMove(pitIndex: Int): GameState {
         if(gameOver) {
-            throw IllegalStateException("Game is over")
+            throw GameOverException("Game is over. Please reset the game to start a new one.")
         }
         if(pitIndex < 0 || pitIndex >= board.pits.size || pitIndex / 7 != currentPlayer) {
-            throw IllegalArgumentException("Invalid move")
+            throw InvalidMoveException("Invalid move. You must select a pit on your side with stones.")
         }
         if(board.pits[pitIndex] == 0) {
-            throw IllegalArgumentException("Cannot select an empty pit")
+            throw InvalidMoveException("Invalid move. You cannot select an empty pit")
         }
 
         val lastPitIndex = board.moveStones(pitIndex, currentPlayer)
