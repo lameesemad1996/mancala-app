@@ -5,8 +5,7 @@ import com.example.mancala.model.GameState
 import org.springframework.stereotype.Service
 
 @Service
-class GameService {
-    private val board = Board()
+class GameService (private val board: Board = Board()) {
     private var currentPlayer = 0
     private var gameOver = false
 
@@ -22,12 +21,12 @@ class GameService {
         if(pitIndex < 0 || pitIndex >= board.pits.size || pitIndex / 6 != currentPlayer) {
             throw IllegalArgumentException("Invalid move")
         }
-        if(board.pits[pitIndex].stones == 0) {
+        if(board.pits[pitIndex] == 0) {
             throw IllegalArgumentException("Cannot select an empty pit")
         }
 
         val lastPitIndex = board.moveStones(pitIndex, currentPlayer)
-        val stonesInLastPit = board.pits[lastPitIndex].stones
+        val stonesInLastPit = board.pits[lastPitIndex]
         val isPitOnCurrentPlayerSide = Board.isPitOnCurrentPlayerSide(lastPitIndex, currentPlayer)
 
         // Check capture condition
@@ -41,8 +40,8 @@ class GameService {
             board.allocateRemainingStones()
         } else {
             // Check if the current player gets another turn
-            // Check if stone lands in the current player's big pit
-            if(Board.isLastStoneInBigPit(lastPitIndex, currentPlayer)) {
+            // Increment the currentPlayer if last stone does not land in the current player's big pit
+            if(!Board.isLastStoneInBigPit(lastPitIndex, currentPlayer)) {
                 currentPlayer = (currentPlayer + 1) % 2
             }
         }
@@ -56,10 +55,9 @@ class GameService {
      */
     fun getGameState(): GameState {
         return GameState(
-            pits = board.pits.map { it.stones }.toTypedArray(),
-            bigPits = board.bigPits,
+            pits = board.pits,
             currentPlayer = currentPlayer,
-            scores = arrayOf(board.bigPits[0], board.bigPits[1])
+            scores = arrayOf(board.pits[Board.PLAYER_1_BIG_PIT_INDEX], board.pits[Board.PLAYER_2_BIG_PIT_INDEX])
         )
     }
 
