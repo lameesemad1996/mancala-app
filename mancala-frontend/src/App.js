@@ -4,7 +4,7 @@ import GameBoard from "./components/GameBoard";
 function App() {
   return (
     <div className="App">
-      <GameBoard pits={[4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 0]} onPitClick={() => {console.log(`I clicked a pit`)}} />
+      <GameBoard pits={[6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0]} onPitClick={() => {console.log(`I clicked a pit`)}} />
     </div>
   );
 }
