@@ -2,17 +2,19 @@ import React, { useState } from "react";
 import "./StartPage.scss";
 import './../index.scss';
 import {useNavigate} from "react-router-dom";
+import {useSnackbar} from "notistack";
 
 const StartPage = () => {
+    const { enqueueSnackbar } = useSnackbar();
+    const navigate = useNavigate();
     const [player1Name, setPlayer1Name] = useState("");
     const [player2Name, setPlayer2Name] = useState("");
-    const navigate = useNavigate();
 
     const handleGameStart = () => {
-        if (player1Name && player2Name) {
+        if (player1Name.trim() && player2Name.trim()) {
             navigate('/game', { state: { player1Name, player2Name } });
         } else {
-            alert('Please enter both player names.');
+            enqueueSnackbar("Please enter both player names.", { variant: "warning" });
         }
     }
 
