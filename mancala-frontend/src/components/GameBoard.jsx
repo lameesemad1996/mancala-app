@@ -18,8 +18,8 @@ const GameBoard = ({ pits, onPitClick }) => {
             {/* Small Pits */}
             <div className="small-pits">
                 <div className="row player2-row">
-                    {pits.slice(7, 13).map((stones, index) => (
-                        <Pit key={index + 7} stones={stones} onClick={() => onPitClick(index + 7)} />
+                    {pits.slice(7, 13).reverse().map((stones, index) => (
+                        <Pit key={12 - index} stones={stones} onClick={() => onPitClick(12 - index)} />
                     ))}
                 </div>
                 <div className="row player1-row">

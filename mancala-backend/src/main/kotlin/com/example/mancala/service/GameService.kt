@@ -18,7 +18,7 @@ class GameService (private val board: Board = Board()) {
         if(gameOver) {
             throw IllegalStateException("Game is over")
         }
-        if(pitIndex < 0 || pitIndex >= board.pits.size || pitIndex / 6 != currentPlayer) {
+        if(pitIndex < 0 || pitIndex >= board.pits.size || pitIndex / 7 != currentPlayer) {
             throw IllegalArgumentException("Invalid move")
         }
         if(board.pits[pitIndex] == 0) {

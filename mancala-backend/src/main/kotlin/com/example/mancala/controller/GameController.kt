@@ -2,15 +2,12 @@ package com.example.mancala.controller
 
 import com.example.mancala.model.GameState
 import com.example.mancala.service.GameService
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 
 @RestController
 @RequestMapping("/game")
+@CrossOrigin(origins = ["http://localhost:3000"])
 class GameController(private val gameService: GameService) {
 
     @GetMapping("/state")
