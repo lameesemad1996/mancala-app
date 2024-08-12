@@ -46,3 +46,17 @@
   display: flex;
   justify-content: center;
 }
+
+.game-rules-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+  width: 100%;
+}
+
+.show-rules-container {
+  background-color: #f9f9f9;
+  height: 100vh;
+}

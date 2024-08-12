@@ -69,11 +69,15 @@ const GameController = () => {
     if (!gameState) return <div>Loading...</div>;
     if (showRules) {
         return (
-            <div>
-                <GameRules />
-                <button
-                    className='back-to-game-button'
-                    onClick={toggleRules}>Back to Game</button>
+            <div className="show-rules-container">
+                <div className="game-rules-container">
+                    <GameRules/>
+                    <button
+                        className='back-to-game-button'
+                        onClick={toggleRules}>
+                            Back to Game
+                    </button>
+                </div>
             </div>
         );
     }
