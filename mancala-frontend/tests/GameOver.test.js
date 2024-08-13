@@ -78,6 +78,6 @@ describe('GameOver Component', () => {
         const button = screen.getByRole('button', { name: /Play Again/i });
         fireEvent.click(button);
 
-        expect(mockNavigate).toHaveBeenCalledWith('/game');
+        expect(mockNavigate).toHaveBeenCalledWith('/game', {"state": {"player1Name": "Alice", "player2Name": "Bob"}});
     });
 });

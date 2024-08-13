@@ -7,7 +7,7 @@ import './GameController.scss';
 import './../index.scss';
 import { useSnackbar } from 'notistack';
 import GameRules from "./GameRules";
-import GameOver from "./GameOver";
+import { useGame } from '../context/GameContext';
 
 /**
  * GameController component
@@ -20,6 +20,7 @@ const GameController = () => {
     const [showRules, setShowRules] = useState(false);
     const { player1Name, player2Name } = location.state || { player1Name: '', player2Name: '' };
     const { enqueueSnackbar } = useSnackbar();
+    const { setIsGameOver } = useGame();
 
     // Fetch the game state from the API once when the component loads
     useEffect(() => {
@@ -86,6 +87,7 @@ const GameController = () => {
 
     // Check if the game is over, navigate to the GameOver page and reset the game
     if(gameState.pits.slice(0, 6).every(pit => pit === 0) || gameState.pits.slice(7, 13).every(pit => pit === 0)) {
+        setIsGameOver(true);
         handleReset();
         navigate("/game-over", { state: { player1Name, player2Name,  gameState} });
     }
