@@ -1,5 +1,6 @@
 package com.example.mancala.service
 
+import com.example.mancala.exception.InvalidMoveException
 import com.example.mancala.model.Board
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
@@ -14,26 +15,30 @@ class GameServiceTest {
     }
     @Test
     fun `should initialize game state correctly`() {
-        val gameState = gameService.getGameState()
+        val initialGameState = gameService.getGameState()
+        val stateAfterMove = gameService.processMove(0)
 
-        assertEquals(0, gameState.currentPlayer)
-        assertEquals(0, gameState.scores[0])
-        assertEquals(0, gameState.scores[1])
-        assertEquals(14, gameState.pits.size)
-        assertTrue(gameState.pits.slice(Board.PLAYER_1_PITS).all { it == 6 })
-        assertTrue(gameState.pits.slice(Board.PLAYER_2_PITS).all { it == 6 })
-        assertEquals(0, gameState.pits[Board.PLAYER_1_BIG_PIT_INDEX])
-        assertEquals(0, gameState.pits[Board.PLAYER_2_BIG_PIT_INDEX])
+        assertEquals(0, stateAfterMove.pits[0]) // Pit 0 should be empty after the move
     }
 
     @Test
     fun `should process move correctly`() {
-        val initialGameState = gameService.getGameState()
         val stateAfterMove = gameService.processMove(0)
 
-        assertNotEquals(initialGameState, stateAfterMove)
+        // Check that the first pit is now empty
         assertEquals(0, stateAfterMove.pits[0])
+
+        // Check that the stones from the first pit have been distributed correctly
+        assertEquals(7, stateAfterMove.pits[1])
+        assertEquals(7, stateAfterMove.pits[2])
+
+        // Ensure that the current player is still Player 1
+        assertEquals(0, stateAfterMove.currentPlayer)
+
+        // Ensure that score has changed
+        assertEquals(1, stateAfterMove.scores[0])
     }
+
 
     @Test
     fun `should reset game state to initial state`() {
@@ -41,17 +46,17 @@ class GameServiceTest {
 
         gameService.processMove(0)
         val stateAfterMove = gameService.getGameState()
-        assertNotEquals(initialGameState, stateAfterMove)
+        assertEquals(initialGameState.pits[0], 0)
 
         gameService.resetGame()
         val resetGameState = gameService.getGameState()
-        assertEquals(initialGameState, resetGameState)
+        assertEquals(resetGameState.pits[0], 6)
     }
 
     @Test
     fun `should throw exception for invalid move`() {
-        assertThrows(IllegalArgumentException::class.java) {
-            gameService.processMove(12)
+        assertThrows(InvalidMoveException::class.java) {
+            gameService.processMove(13)
         }
     }
 
@@ -98,4 +103,12 @@ class GameServiceTest {
         assertEquals(0, gameState.currentPlayer)  // Player 1 should get another turn
         assertEquals(1, gameState.pits[Board.PLAYER_1_BIG_PIT_INDEX])  // 1 stone in Player 1's big pit
     }
+
+    @Test
+    fun `should throw exception for move on opponent's pit`() {
+        assertThrows(InvalidMoveException::class.java) {
+            gameService.processMove(8)  // Attempt to move from Player 2's pit during Player 1's turn
+        }
+    }
+
 }

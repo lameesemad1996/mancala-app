@@ -1,6 +1,5 @@
 package com.example.mancala.service
 
-import com.example.mancala.exception.GameOverException
 import com.example.mancala.exception.InvalidMoveException
 import com.example.mancala.model.Board
 import com.example.mancala.model.GameState
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Service
 @Service
 class GameService (private val board: Board = Board()) {
     private var currentPlayer = 0
-    private var gameOver = false
 
     /**
      * Process a move in the game
@@ -17,9 +15,6 @@ class GameService (private val board: Board = Board()) {
      * @return The updated game state
      */
     fun processMove(pitIndex: Int): GameState {
-        if(gameOver) {
-            throw GameOverException("Game is over. Please reset the game to start a new one.")
-        }
         if(pitIndex < 0 || pitIndex >= board.pits.size || pitIndex / 7 != currentPlayer) {
             throw InvalidMoveException("Invalid move. You must select a pit on your side with stones.")
         }
@@ -30,15 +25,15 @@ class GameService (private val board: Board = Board()) {
         val lastPitIndex = board.moveStones(pitIndex, currentPlayer)
         val stonesInLastPit = board.pits[lastPitIndex]
         val isPitOnCurrentPlayerSide = Board.isPitOnCurrentPlayerSide(lastPitIndex, currentPlayer)
+        val playersBigPit = if(currentPlayer == Board.PLAYER_1) Board.PLAYER_1_BIG_PIT_INDEX else Board.PLAYER_2_BIG_PIT_INDEX
 
         // Check capture condition
-        if(lastPitIndex <= 12 && stonesInLastPit == 1 && isPitOnCurrentPlayerSide) {
+        if(lastPitIndex <= 12 && stonesInLastPit == 1 && isPitOnCurrentPlayerSide && lastPitIndex != playersBigPit) {
             board.catchingOpponentsStones(lastPitIndex, currentPlayer)
         }
 
         // Check if the game is over
         if(board.isGameOver()) {
-            gameOver = true
             board.allocateRemainingStones()
         } else {
             // Check if the current player gets another turn
@@ -69,6 +64,5 @@ class GameService (private val board: Board = Board()) {
     fun resetGame() {
         board.resetBoard()
         currentPlayer = 0
-        gameOver = false
     }
 }

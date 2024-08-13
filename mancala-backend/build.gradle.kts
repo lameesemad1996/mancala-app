@@ -20,6 +20,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("javax.validation:validation-api:2.0.1.Final")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

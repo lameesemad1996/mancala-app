@@ -3,7 +3,8 @@ package com.example.mancala.controller
 import com.example.mancala.model.GameState
 import com.example.mancala.service.GameService
 import org.springframework.web.bind.annotation.*
-
+import javax.validation.constraints.Min
+import javax.validation.constraints.Max
 
 @RestController
 @RequestMapping("/game")
@@ -16,7 +17,7 @@ class GameController(private val gameService: GameService) {
     }
 
     @PostMapping("/move")
-    fun makeMove(@RequestParam pitIndex: Int): GameState {
+    fun makeMove(@RequestParam @Min(0) @Max(12) pitIndex: Int): GameState {
         return gameService.processMove(pitIndex)
     }
 
