@@ -20,6 +20,7 @@ const GameRules = () => {
             </p>
             <br/>
             <img className="game-rules-img" src='/images/rules.jpeg' alt='image demonstrating some game rules'/>
+            <footer>Powered by Bol.com - Built by LK Studios</footer>
         </div>
     );
 };

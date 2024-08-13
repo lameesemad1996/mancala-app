@@ -32,8 +32,8 @@ class GameService (private val board: Board = Board()) {
         val isPitOnCurrentPlayerSide = Board.isPitOnCurrentPlayerSide(lastPitIndex, currentPlayer)
 
         // Check capture condition
-        if(lastPitIndex < 12 && stonesInLastPit == 1 && isPitOnCurrentPlayerSide) {
-            board.captureStones(lastPitIndex, currentPlayer)
+        if(lastPitIndex <= 12 && stonesInLastPit == 1 && isPitOnCurrentPlayerSide) {
+            board.catchingOpponentsStones(lastPitIndex, currentPlayer)
         }
 
         // Check if the game is over

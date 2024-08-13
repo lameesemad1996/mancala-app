@@ -8,11 +8,11 @@ import React from "react";
  * @param {function} onClick - Callback for when the pit is clicked
  * @param {boolean} clickable - If true, allows the pit to be clicked
  */
-const Pit = ({ stones, bigPit, onClick, clickable }) => {
+const Pit = ({ stones, bigPit, onClick, clickable, dataTestId }) => {
     return (
         <div
             className={`pit ${bigPit ? "big-pit" : ""} ${clickable ? 'clickable' : ''}`}
-            onClick={clickable ? onClick : undefined}>
+            onClick={clickable ? onClick : undefined} data-testid={dataTestId}>
                 {stones}
         </div>
     );

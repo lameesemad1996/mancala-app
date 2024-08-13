@@ -2,22 +2,24 @@ import React, { useState, useEffect} from "react";
 import ApiService from "../services/ApiService";
 import GameBoard from "./GameBoard";
 import PlayerInfo from "./PlayerInfo";
-import {Link, useLocation} from 'react-router-dom';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
 import './GameController.scss';
 import './../index.scss';
 import { useSnackbar } from 'notistack';
 import GameRules from "./GameRules";
+import GameOver from "./GameOver";
 
 /**
  * GameController component
  * Manages the state of the game and interactions between the UI and backend API
  */
 const GameController = () => {
-    const { enqueueSnackbar } = useSnackbar();
     const location = useLocation();
-    const { player1Name, player2Name } = location.state || { player1Name: '', player2Name: '' };
+    const navigate = useNavigate();
     const [gameState, setGameState] = useState(null);
     const [showRules, setShowRules] = useState(false);
+    const { player1Name, player2Name } = location.state || { player1Name: '', player2Name: '' };
+    const { enqueueSnackbar } = useSnackbar();
 
     // Fetch the game state from the API once when the component loads
     useEffect(() => {
@@ -82,9 +84,15 @@ const GameController = () => {
         );
     }
 
+    // Check if the game is over, navigate to the GameOver page and reset the game
+    if(gameState.pits.slice(0, 6).every(pit => pit === 0) || gameState.pits.slice(7, 13).every(pit => pit === 0)) {
+        handleReset();
+        navigate("/game-over", { state: { player1Name, player2Name,  gameState} });
+    }
+
     return (
         <div className={'game-controller-container'}>
-            <div className="title">Welcome to the Mancala Game</div>
+            <div className="title">Mancala</div>
             <div className="title player-names"> {player1Name} VS. {player2Name} </div>
 
             <GameBoard className="game-board"

@@ -3,17 +3,16 @@ import "./StartPage.scss";
 import './../index.scss';
 import {useNavigate} from "react-router-dom";
 import {useSnackbar} from "notistack";
-import GameRules from "./GameRules";
 
 /**
  * StartPage component
  * Collects player names before starting the game
  */
 const StartPage = () => {
-    const { enqueueSnackbar } = useSnackbar();
     const navigate = useNavigate();
     const [player1Name, setPlayer1Name] = useState("");
     const [player2Name, setPlayer2Name] = useState("");
+    const { enqueueSnackbar } = useSnackbar();
 
     const handleGameStart = () => {
         if (player1Name.trim() && player2Name.trim()) {
@@ -25,23 +24,30 @@ const StartPage = () => {
 
     return (
         <div className="start-page">
-            <div className="title">Welcome to the Mancala Game</div>
+            <div className="title">Mancala</div>
             <div className="input-group">
-                <label>Player 1 Name:</label>
-                <input
-                    type="text"
-                    name="player1"
-                    value={player1Name}
-                    onChange={(event) => setPlayer1Name(event.target.value)}
-                />
-                <br/>
-                <label>Player 2 Name:</label>
-                <input
-                    type="text"
-                    name="player2"
-                    value={player2Name}
-                    onChange={(event) => setPlayer2Name(event.target.value)}
-                />
+                <div className="input-container">
+                    <label className="input-label-1">Please enter the name of the first player:</label>
+                    <input
+                        type="text"
+                        name="player1"
+                        value={player1Name}
+                        placeholder={"Player 1"}
+                        data-testid="player1input"
+                        onChange={(event) => setPlayer1Name(event.target.value)}
+                    />
+                </div>
+                <div className="input-container">
+                    <label className="input-label-2">Please enter the name of the second player:</label>
+                    <input
+                        type="text"
+                        name="player2"
+                        value={player2Name}
+                        placeholder={"Player 2"}
+                        data-testid="player2input"
+                        onChange={(event) => setPlayer2Name(event.target.value)}
+                    />
+                </div>
             </div>
             <div>
                 <button className="game-rules-button" onClick={() => navigate("/rules")}>Game Rules</button>

@@ -18,7 +18,7 @@ data class Board(
          * @return True if the pit is on the current player's side, false otherwise
          */
         fun isPitOnCurrentPlayerSide(pitIndex: Int, currentPlayer: Int): Boolean {
-            return pitIndex / 6 == currentPlayer
+            return pitIndex / 7 == currentPlayer
         }
 
         /**
@@ -64,7 +64,7 @@ data class Board(
      * @param pitIndex The index of the pit
      * @param currentPlayer The index of the current player - 0 for player 1, 1 for player 2
      */
-    fun captureStones(pitIndex: Int, currentPlayer: Int) {
+    fun catchingOpponentsStones(pitIndex: Int, currentPlayer: Int) {
         val oppositePitIndex = 12 - pitIndex
         val currentPlayerBigPitIndex = if (currentPlayer == PLAYER_1) PLAYER_1_BIG_PIT_INDEX else PLAYER_2_BIG_PIT_INDEX
         pits[currentPlayerBigPitIndex] += pits[oppositePitIndex] + pits[pitIndex]

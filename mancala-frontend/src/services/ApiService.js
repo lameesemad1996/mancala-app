@@ -8,11 +8,9 @@ axios.defaults.baseURL = 'http://localhost:8080/game';
  */
 const ApiService = {
     getGameState: () => axios.get('/state').then(response => {
-        console.log(response.data)
         return response
     }),
     makeMove: (pitIndex) => axios.post(`/move?pitIndex=${pitIndex}`).then(response => {
-        console.log(response.data)
         return response
     }),
     resetGame: () => axios.post('/reset')

@@ -1,9 +1,11 @@
+import React from 'react';
 import './App.css';
 import GameController from "./components/GameController";
 import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import StartPage from "./components/StartPage";
 import {SnackbarProvider} from "notistack";
 import GameRules from "./components/GameRules";
+import GameOver from "./components/GameOver";
 
 function App() {
   return (
@@ -31,6 +33,10 @@ function App() {
                       }}>
                       <GameController />
                   </SnackbarProvider>
+              } />
+
+              <Route path="/game-over" element={
+                      <GameOver />
               } />
 
               <Route path="/rules" element={<GameRules />} />

@@ -14,7 +14,7 @@ const GameBoard = ({ pits, currentPlayer, onPitClick }) => {
         <div className="game-board">
             {/* Big Pit for Player 2 */}
             <div className="big-pit-container player2-big-pit">
-                <Pit stones={pits[13]} bigPit />
+                <Pit stones={pits[13]} bigPit dataTestId="pit-13"/>
             </div>
 
             {/* Small Pits */}
@@ -25,7 +25,8 @@ const GameBoard = ({ pits, currentPlayer, onPitClick }) => {
                             key={12 - index}
                             stones={stones}
                             onClick={() => onPitClick(12 - index)}
-                            clickable={currentPlayer === 1} />
+                            clickable={currentPlayer === 1}
+                            dataTestId={`pit-${12 - index}`} />
                     ))}
                 </div>
                 <div className="row player1-row">
@@ -35,6 +36,7 @@ const GameBoard = ({ pits, currentPlayer, onPitClick }) => {
                             stones={stones}
                             onClick={() => onPitClick(index)}
                             clickable={currentPlayer === 0}
+                            dataTestId={`pit-${index}`}
                         />
                     ))}
                 </div>
@@ -42,7 +44,7 @@ const GameBoard = ({ pits, currentPlayer, onPitClick }) => {
 
             {/* Big Pit for Player 1 */}
             <div className="big-pit-container player1-big-pit">
-                <Pit stones={pits[6]} bigPit />
+                <Pit stones={pits[6]} bigPit dataTestId="pit-6"/>
             </div>
         </div>
     );
