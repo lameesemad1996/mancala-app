@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import PropTypes from "prop-types";
 
 const GameContext = createContext();
 export const useGame = () => useContext(GameContext);
@@ -16,4 +17,8 @@ export const GameProvider = ({ children }) => {
             {children}
         </GameContext.Provider>
     );
+};
+
+GameProvider.propTypes = {
+    children: PropTypes.node.isRequired,
 };
