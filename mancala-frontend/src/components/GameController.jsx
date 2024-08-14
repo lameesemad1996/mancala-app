@@ -32,6 +32,19 @@ const GameController = () => {
         });
     }, []);
 
+    useEffect(() => {
+        if (gameState) {
+            // Check if the game is over
+            const isGameOver = gameState.pits.slice(0, 6).every(pit => pit === 0) || gameState.pits.slice(7, 13).every(pit => pit === 0);
+            if (isGameOver) {
+                setIsGameOver(true);
+                handleReset();
+                navigate("/game-over", { state: { player1Name, player2Name, gameState } });
+            }
+        }
+    }, [gameState, setIsGameOver, navigate, player1Name, player2Name]);
+
+
 
     /**
      * Toggles the visibility of the GameRules component
@@ -84,14 +97,6 @@ const GameController = () => {
             </div>
         );
     }
-
-    // Check if the game is over, navigate to the GameOver page and reset the game
-    if(gameState.pits.slice(0, 6).every(pit => pit === 0) || gameState.pits.slice(7, 13).every(pit => pit === 0)) {
-        setIsGameOver(true);
-        handleReset();
-        navigate("/game-over", { state: { player1Name, player2Name,  gameState} });
-    }
-
     return (
         <div className={'game-controller-container'}>
             <div className="title">Mancala</div>
