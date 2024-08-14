@@ -4,6 +4,7 @@ import { SnackbarProvider } from 'notistack';
 import { BrowserRouter } from 'react-router-dom';
 import StartPage from './../src/components/StartPage';
 import {describe, expect, test, afterEach} from "@jest/globals";
+import {GameProvider} from "../src/context/GameContext";
 
 // Mock the useNavigate hook from react-router-dom
 const mockNavigate = jest.fn();
@@ -19,11 +20,13 @@ afterEach(() => {
 describe('StartPage Component', () => {
     test('renders title and input fields correctly', () => {
         render(
-            <BrowserRouter>
-                <SnackbarProvider>
-                    <StartPage />
-                </SnackbarProvider>
-            </BrowserRouter>
+            <GameProvider>
+                <BrowserRouter>
+                    <SnackbarProvider>
+                        <StartPage />
+                    </SnackbarProvider>
+                </BrowserRouter>
+            </GameProvider>
         );
 
         expect(screen.getByText('Mancala')).toBeInTheDocument();
@@ -33,11 +36,13 @@ describe('StartPage Component', () => {
 
     test('shows warning snackbar when player names are not entered', () => {
         render(
-            <BrowserRouter>
-                <SnackbarProvider>
-                    <StartPage />
-                </SnackbarProvider>
-            </BrowserRouter>
+            <GameProvider>
+                <BrowserRouter>
+                    <SnackbarProvider>
+                        <StartPage />
+                    </SnackbarProvider>
+                </BrowserRouter>
+            </GameProvider>
         );
 
         fireEvent.click(screen.getByText('Start Game'));
@@ -46,17 +51,19 @@ describe('StartPage Component', () => {
 
     test('navigates to game page when player names are entered', () => {
         render(
-            <BrowserRouter>
-                <SnackbarProvider>
-                    <StartPage />
-                </SnackbarProvider>
-            </BrowserRouter>
+            <GameProvider>
+                <BrowserRouter>
+                    <SnackbarProvider>
+                        <StartPage />
+                    </SnackbarProvider>
+                </BrowserRouter>
+            </GameProvider>
         );
 
         fireEvent.change(screen.getByTestId('player1input'), { target: { value: 'Alice' } });
         fireEvent.change(screen.getByTestId('player2input'), { target: { value: 'Bob' } });
         fireEvent.click(screen.getByText('Start Game'));
 
-        expect(mockNavigate).toHaveBeenCalledWith('/game', { state: { player1Name: 'Alice', player2Name: 'Bob' } });
+        expect(mockNavigate).toHaveBeenCalledWith('/game');
     });
 });

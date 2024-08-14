@@ -2,7 +2,7 @@ import React, { useState, useEffect} from "react";
 import ApiService from "../services/ApiService";
 import GameBoard from "./GameBoard";
 import PlayerInfo from "./PlayerInfo";
-import {Link, useLocation, useNavigate} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import './GameController.scss';
 import './../index.scss';
 import { useSnackbar } from 'notistack';
@@ -14,13 +14,11 @@ import { useGame } from '../context/GameContext';
  * Manages the state of the game and interactions between the UI and backend API
  */
 const GameController = () => {
-    const location = useLocation();
     const navigate = useNavigate();
     const [gameState, setGameState] = useState(null);
     const [showRules, setShowRules] = useState(false);
-    const { player1Name, player2Name } = location.state || { player1Name: '', player2Name: '' };
     const { enqueueSnackbar } = useSnackbar();
-    const { setIsGameOver } = useGame();
+    const { setIsGameOver, player1Name, player2Name, setPlayer1Name, setPlayer2Name } = useGame();
 
     // Fetch the game state from the API once when the component loads
     useEffect(() => {
@@ -30,7 +28,7 @@ const GameController = () => {
             console.error("Error fetching game state:", error);
             enqueueSnackbar("Failed to load game state.", { variant: "error" });
         });
-    }, []);
+    });
 
     useEffect(() => {
         if (gameState) {
@@ -39,7 +37,7 @@ const GameController = () => {
             if (isGameOver) {
                 setIsGameOver(true);
                 handleReset();
-                navigate("/game-over", { state: { player1Name, player2Name, gameState } });
+                navigate("/game-over", { state: { gameState } });
             }
         }
     }, [gameState, setIsGameOver, navigate, player1Name, player2Name]);
@@ -73,9 +71,13 @@ const GameController = () => {
     /**
      * Resets the game state by making an API call
      */
-    const handleReset = () => {
+    const handleReset = (isStartingANewGame = false) => {
         ApiService.resetGame().then((response) => {
             setGameState(response.data)
+            if(isStartingANewGame) {
+                setPlayer1Name('');
+                setPlayer2Name('');
+            }
         }).catch((error) => {
             console.error("Error resetting game:", error);
             enqueueSnackbar("Failed to reset the game.", { variant: "error" });
@@ -91,7 +93,7 @@ const GameController = () => {
                     <button
                         className='back-to-game-button'
                         onClick={toggleRules}>
-                            Back to Game
+                        Back to Game
                     </button>
                 </div>
             </div>
@@ -115,12 +117,14 @@ const GameController = () => {
                     player1Score={gameState.pits[6]}
                     player2Name={player2Name}
                     player2Score={gameState.pits[13]}
-                    onReset={handleReset}
+                    onReset={() => handleReset(false)}
                 />
                 <button className="game-rules-button" onClick={toggleRules}>Game Rules</button>
                 <Link to="/">
                     <div className="button-container">
-                        <button className="new-game-button" onClick={handleReset}>Start A New Game</button>
+                        <button className="new-game-button" onClick={() => {
+                            handleReset(true);
+                        }}>Start A New Game</button>
                     </div>
                 </Link>
             </div>
