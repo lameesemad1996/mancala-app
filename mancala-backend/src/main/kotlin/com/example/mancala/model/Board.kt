@@ -100,4 +100,13 @@ data class Board(
         pits[PLAYER_1_BIG_PIT_INDEX] = 0
         pits[PLAYER_2_BIG_PIT_INDEX] = 0
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is Board) return false
+        return pits.contentEquals(other.pits)
+    }
+
+    override fun hashCode(): Int {
+        return pits.contentHashCode()
+    }
 }

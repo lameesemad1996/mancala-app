@@ -13,27 +13,29 @@ repositories {
     mavenCentral()
 }
 
+// Define dependency versions as variables
+val commonsLang3Version = "3.12.0"
+val validationApiVersion = "2.0.1.Final"
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.apache.commons:commons-lang3:3.12.0")
-    implementation("javax.validation:validation-api:2.0.1.Final")
+    implementation("org.apache.commons:commons-lang3:$commonsLang3Version")
+    implementation("javax.validation:validation-api:$validationApiVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
-        // Enforces strict nullability checks based on JSR 305 annotations
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "17"
     }
 }
 
-// Configures test tasks to use JUnit platform for running JUnit 5 tests
 tasks.withType<Test> {
     useJUnitPlatform()
 }
