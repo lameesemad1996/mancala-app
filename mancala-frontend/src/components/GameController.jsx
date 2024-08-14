@@ -22,17 +22,12 @@ const GameController = () => {
 
     // Fetch the game state from the API once when the component loads
     useEffect(() => {
-        ApiService.getGameState().then((response) => {
-            setGameState(response.data)
-        }).catch((error) => {
-            console.error("Error fetching game state:", error);
-            enqueueSnackbar("Failed to load game state.", { variant: "error" });
-        });
-    });
+        fetchGameState();
+    }, []);
 
+    // Check if the game is over and navigate to the game over page
     useEffect(() => {
         if (gameState) {
-            // Check if the game is over
             const isGameOver = gameState.pits.slice(0, 6).every(pit => pit === 0) || gameState.pits.slice(7, 13).every(pit => pit === 0);
             if (isGameOver) {
                 setIsGameOver(true);
@@ -42,13 +37,31 @@ const GameController = () => {
         }
     }, [gameState, setIsGameOver, navigate, player1Name, player2Name]);
 
-
+    /**
+     * Fetches the game state from the API
+     * @returns {Promise<void>}
+     */
+    const fetchGameState = () => {
+        ApiService.getGameState()
+            .then(response => setGameState(response.data))
+            .catch(error => {
+                console.error("Error fetching game state:", error);
+                enqueueSnackbar("Failed to load game state.", { variant: "error" });
+            });
+    };
 
     /**
-     * Toggles the visibility of the GameRules component
+     * Handles API errors by logging the error and displaying a snackbar with the default message
+     * @param error
+     * @param defaultMessage
      */
-    const toggleRules = () => {
-        setShowRules(!showRules);
+    const handleApiError = (error, defaultMessage) => {
+        console.error(defaultMessage, error);
+        if (error.response && error.response.status === 400) {
+            enqueueSnackbar(error.response.data.error, { variant: "error" });
+        } else {
+            enqueueSnackbar(defaultMessage, { variant: "error" });
+        }
     };
 
     /**
@@ -59,30 +72,26 @@ const GameController = () => {
         ApiService.makeMove(pitIndex).then((response) => {
             setGameState(response.data);
         }).catch((error) => {
-            console.error("Error making move:", error);
-            if (error.response && error.response.status === 400) {
-                enqueueSnackbar(error.response.data.error, { variant: "error" }); // Show error message from backend
-            } else {
-                enqueueSnackbar("An unexpected error occurred.", { variant: "error" });
-            }
+            handleApiError(error, "Error making move.");
         });
-    }
+    };
 
     /**
      * Resets the game state by making an API call
      */
     const handleReset = (isStartingANewGame = false) => {
-        ApiService.resetGame().then((response) => {
-            setGameState(response.data)
-            if(isStartingANewGame) {
-                setPlayer1Name('');
-                setPlayer2Name('');
-            }
-        }).catch((error) => {
-            console.error("Error resetting game:", error);
-            enqueueSnackbar("Failed to reset the game.", { variant: "error" });
-        });
-    }
+        ApiService.resetGame()
+            .then(response => {
+                setGameState(response.data);
+                if (isStartingANewGame) {
+                    setPlayer1Name('');
+                    setPlayer2Name('');
+                }
+            })
+            .catch(error => {
+                handleApiError(error, "Failed to reset the game.");
+            });
+    };
 
     if (!gameState) return <div>Loading...</div>;
     if (showRules) {
@@ -92,7 +101,7 @@ const GameController = () => {
                     <GameRules/>
                     <button
                         className='back-to-game-button'
-                        onClick={toggleRules}>
+                        onClick={() => setShowRules(false)}>
                         Back to Game
                     </button>
                 </div>
@@ -119,12 +128,10 @@ const GameController = () => {
                     player2Score={gameState.pits[13]}
                     onReset={() => handleReset(false)}
                 />
-                <button className="game-rules-button" onClick={toggleRules}>Game Rules</button>
+                <button className="game-rules-button" onClick={() => setShowRules(true)}>Game Rules</button>
                 <Link to="/">
                     <div className="button-container">
-                        <button className="new-game-button" onClick={() => {
-                            handleReset(true);
-                        }}>Start A New Game</button>
+                        <button className="new-game-button" onClick={() => handleReset(true)}>Start A New Game</button>
                     </div>
                 </Link>
             </div>

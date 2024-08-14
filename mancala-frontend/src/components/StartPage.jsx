@@ -4,6 +4,7 @@ import './../index.scss';
 import {useNavigate} from "react-router-dom";
 import {useSnackbar} from "notistack";
 import { useGame } from "../context/GameContext";
+import { sanitizeAndValidatePlayerName } from '../utils';
 
 /**
  * StartPage component
@@ -17,14 +18,19 @@ const StartPage = () => {
     const { setPlayer1Name, setPlayer2Name } = useGame();
 
     const handleGameStart = () => {
-        if (player1Name.trim() && player2Name.trim()) {
-            setPlayer1Name(player1Name);
-            setPlayer2Name(player2Name);
-            navigate('/game');
-        } else {
-            enqueueSnackbar("Please enter both player names.", { variant: "warning" });
+        const player1Validation = sanitizeAndValidatePlayerName(player1Name, enqueueSnackbar);
+        const player2Validation = sanitizeAndValidatePlayerName(player2Name, enqueueSnackbar);
+
+        if (!player1Validation.isValid || !player2Validation.isValid) {
+            // If either name is invalid, stop further execution
+            return;
         }
-    }
+
+        // Proceed with the sanitized names if both are valid
+        setPlayer1Name(player1Validation.sanitizedName);
+        setPlayer2Name(player2Validation.sanitizedName);
+        navigate('/game');
+    };
 
     return (
         <div className="start-page">
