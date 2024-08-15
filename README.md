@@ -22,7 +22,6 @@ The project is designed to allow multiple games to be hosted simultaneously on a
 - [Testing](#testing)
 - [API Documentation](#api-documentation)
 - [Technologies Used](#technologies-used)
-- [Directory Structure](#directory-structure)
 - [Contributing](#contributing)
 
 ## Features
@@ -267,37 +266,6 @@ Each endpoint interacts with the `GameService` to manage the game logic.
     - Axios for API requests
     - Sass for styling
     - Jest and React Testing Library for testing
-
-## Directory Structure
-
-```plaintext
-mancala-game/
-├── src/
-│   ├── main/
-│   │   ├── kotlin/
-│   │   ├── resources/
-│   ├── test/
-│   │   ├── kotlin/
-│   ├── integrationTest/
-│   │   ├── kotlin/
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── services/
-│   │   ├── utils/
-│   │   ├── App.js
-│   │   ├── index.js
-
-
-│   │   ├── index.scss
-│   ├── package.json
-│   ├── ...
-├── build.gradle.kts
-├── settings.gradle.kts
-└── README.md
-```
 
 ## Contributing
 
