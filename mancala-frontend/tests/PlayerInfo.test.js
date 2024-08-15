@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import PlayerInfo from './../src/components/PlayerInfo';
-import {describe, expect, test, jest} from "@jest/globals";
+import { describe, expect, test, jest } from "@jest/globals";
 
 describe('PlayerInfo Component', () => {
     const handleReset = jest.fn();

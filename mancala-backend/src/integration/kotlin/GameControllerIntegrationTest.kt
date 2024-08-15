@@ -1,6 +1,8 @@
 import com.example.mancala.MancalaApplication
+import com.example.mancala.entity.GameState
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -14,12 +16,21 @@ import org.springframework.validation.annotation.Validated
 
 @SpringBootTest(classes = [MancalaApplication::class])
 @AutoConfigureMockMvc
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Validated
 class GameControllerIntegrationTest {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
+
+    private lateinit var createdGameState: GameState
+
+    @BeforeEach
+    fun setup() {
+        val result = mockMvc.perform(post("/game/create"))
+            .andExpect(status().isOk)
+            .andReturn()
+        createdGameState = ObjectMapper().readValue(result.response.contentAsString, GameState::class.java)
+    }
 
     val moveEndpoint = "/game/move"
     val resetEndpoint = "/game/reset"
@@ -28,24 +39,24 @@ class GameControllerIntegrationTest {
 
     @Test
     fun getGameStateReturnsCurrentGameState() {
-        mockMvc.perform(get(stateEndpoint))
+        mockMvc.perform(get("$stateEndpoint/${createdGameState.id}"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.pits").exists())
+            .andExpect(jsonPath("$.board.pits").exists())
             .andExpect(jsonPath("$.currentPlayer").exists())
     }
 
     @Test
     fun postMoveUpdatesGameState() {
-        mockMvc.perform(post(moveEndpoint).param("pitIndex", "0"))
+        mockMvc.perform(post("$moveEndpoint/${createdGameState.id}").param("pitIndex", "0"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.pits[0]").value(0)) // Assuming pit 0 has been played
+            .andExpect(jsonPath("$.board.pits[0]").value(0)) // Assuming pit 0 has been played
     }
 
     @Test
     fun postResetReturnsInitialGameState() {
-        mockMvc.perform(post(resetEndpoint))
+        mockMvc.perform(post("$resetEndpoint/${createdGameState.id}"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.pits[0]").value(6)) // Assuming pits are reset to 6 stones each
+            .andExpect(jsonPath("$.board.pits[0]").value(6)) // Assuming pits are reset to 6 stones each
     }
 
     /**
@@ -53,7 +64,7 @@ class GameControllerIntegrationTest {
      */
     @Test
     fun postMoveWithNegativePitIndexReturnsBadRequest() {
-        mockMvc.perform(post(moveEndpoint).param("pitIndex", "-1"))
+        mockMvc.perform(post("$moveEndpoint/${createdGameState.id}").param("pitIndex", "-1"))
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath(errorJSONPath).value("pitIndex: Invalid pit index"))
     }
@@ -64,7 +75,7 @@ class GameControllerIntegrationTest {
      */
     @Test
     fun postMoveWithOutOfBoundsPitIndexReturnsBadRequest() {
-        mockMvc.perform(post(moveEndpoint).param("pitIndex", "14"))
+        mockMvc.perform(post("$moveEndpoint/${createdGameState.id}").param("pitIndex", "14"))
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath(errorJSONPath).value("pitIndex: Invalid pit index"))
     }
@@ -76,11 +87,11 @@ class GameControllerIntegrationTest {
     @Test
     fun postMoveOnEmptyPitReturnsBadRequest() {
         // First move to empty pit 0
-        mockMvc.perform(post(moveEndpoint).param("pitIndex", "0"))
+        mockMvc.perform(post("$moveEndpoint/${createdGameState.id}").param("pitIndex", "0"))
             .andExpect(status().isOk)
 
         // Attempt to move again on the now-empty pit 0
-        mockMvc.perform(post(moveEndpoint).param("pitIndex", "0"))
+        mockMvc.perform(post("$moveEndpoint/${createdGameState.id}").param("pitIndex", "0"))
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath(errorJSONPath).value("Invalid move. You cannot select an empty pit."))
     }
@@ -94,7 +105,7 @@ class GameControllerIntegrationTest {
         val pitIndices = listOf("1", "8", "3", "9", "2", "10")  // Alternating moves between players
 
         for (pitIndex in pitIndices) {
-            mockMvc.perform(post(moveEndpoint).param("pitIndex", pitIndex))
+            mockMvc.perform(post("$moveEndpoint/${createdGameState.id}").param("pitIndex", pitIndex))
                 .andExpect(status().isOk)
                 .andReturn()
         }
@@ -105,7 +116,7 @@ class GameControllerIntegrationTest {
      */
     @Test
     fun postMoveWithNonIntegerPitIndexReturnsBadRequest() {
-        mockMvc.perform(post(moveEndpoint).param("pitIndex", "invalid"))
+        mockMvc.perform(post("$moveEndpoint/${createdGameState.id}").param("pitIndex", "invalid"))
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath(errorJSONPath).value("Pit index must be an integer"))
     }
@@ -126,7 +137,7 @@ class GameControllerIntegrationTest {
     @Test
     fun postMoveWithMissingParameterReturnsBadRequest() {
         mockMvc.perform(
-            post(moveEndpoint)
+            post("$moveEndpoint/${createdGameState.id}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("")
         )
@@ -134,4 +145,3 @@ class GameControllerIntegrationTest {
             .andExpect(jsonPath(errorJSONPath).value("Pit index is required"))
     }
 }
-

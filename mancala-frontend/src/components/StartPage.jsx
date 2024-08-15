@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import "./StartPage.scss";
 import './../index.scss';
-import {useNavigate} from "react-router-dom";
-import {useSnackbar} from "notistack";
-import { useGame } from "../context/GameContext";
+import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "notistack";
+import { useGame } from "../context/gameContext";
 import { sanitizeAndValidatePlayerName } from '../utils';
+import ApiService from '../services/gameApiService';
 
 /**
  * StartPage component
@@ -15,7 +16,7 @@ const StartPage = () => {
     const [player1Name, setPlayer1NameInput] = useState("");
     const [player2Name, setPlayer2NameInput] = useState("");
     const { enqueueSnackbar } = useSnackbar();
-    const { setPlayer1Name, setPlayer2Name } = useGame();
+    const { setPlayer1Name, setPlayer2Name, setGameId } = useGame(); // Added setGameId to useGame
 
     const handleGameStart = () => {
         const player1Validation = sanitizeAndValidatePlayerName(player1Name, enqueueSnackbar);
@@ -29,7 +30,17 @@ const StartPage = () => {
         // Proceed with the sanitized names if both are valid
         setPlayer1Name(player1Validation.sanitizedName);
         setPlayer2Name(player2Validation.sanitizedName);
-        navigate('/game');
+
+        // Create a new game and navigate to the game page
+        ApiService.createGame()
+            .then(response => {
+                setGameId(response.data.id);
+                navigate('/game');
+            })
+            .catch(error => {
+                console.error("Error creating game:", error);
+                enqueueSnackbar("Failed to start a new game.", { variant: "error" });
+            });
     };
 
     return (
@@ -65,7 +76,6 @@ const StartPage = () => {
             </div>
             <footer>Powered by Bol.com - Built by LK Studios</footer>
         </div>
-
     );
 }
 

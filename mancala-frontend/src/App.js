@@ -7,7 +7,7 @@ import { SnackbarProvider } from "notistack";
 import GameRules from "./components/GameRules";
 import GameOver from "./components/GameOver";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { GameProvider } from "./context/GameContext";
+import { GameProvider } from "./context/gameContext";
 
 function App() {
     return (

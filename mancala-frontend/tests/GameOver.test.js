@@ -2,10 +2,10 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import GameOver from '../src/components/GameOver';
-import { GameProvider } from "../src/context/GameContext";
-import { useGame } from "../src/context/GameContext";
+import { GameProvider } from "../src/context/gameContext";
+import { useGame } from "../src/context/gameContext";
+import {beforeEach, describe, expect, jest, test} from "@jest/globals";
 
-// Mock the useLocation and useNavigate hooks
 jest.mock('react-router-dom', () => ({
     useLocation: jest.fn(),
     useNavigate: jest.fn(),
@@ -21,7 +21,9 @@ describe('GameOver Component', () => {
     test('displays winner correctly when player1 wins', () => {
         useLocation.mockReturnValue({
             state: {
-                gameState: { pits: [0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 5] },
+                gameState: {
+                    board: { pits: [0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 5] },
+                },
             },
         });
 
@@ -41,7 +43,9 @@ describe('GameOver Component', () => {
     test('displays winner correctly when player2 wins', () => {
         useLocation.mockReturnValue({
             state: {
-                gameState: { pits: [0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 10] },
+                gameState: {
+                    board: { pits: [0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 10] },
+                },
             },
         });
 
@@ -61,7 +65,9 @@ describe('GameOver Component', () => {
     test('displays tie correctly', () => {
         useLocation.mockReturnValue({
             state: {
-                gameState: { pits: [0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 10] },
+                gameState: {
+                    board: { pits: [0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 10] },
+                },
             },
         });
 
@@ -81,7 +87,9 @@ describe('GameOver Component', () => {
     test('navigates to /game on button click', () => {
         useLocation.mockReturnValue({
             state: {
-                gameState: { pits: [0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 5] },
+                gameState: {
+                    board: { pits: [0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 5] },
+                },
             },
         });
 
@@ -96,7 +104,7 @@ describe('GameOver Component', () => {
         const button = screen.getByRole('button', { name: /Play Again/i });
         fireEvent.click(button);
 
-        expect(mockNavigate).toHaveBeenCalledWith('/game');
+        expect(mockNavigate).toHaveBeenCalledWith('/game', { state: { isNewGame: true } });
     });
 });
 

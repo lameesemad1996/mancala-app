@@ -1,18 +1,15 @@
 import React from 'react';
-import {fireEvent, render, screen} from '@testing-library/react';
-import {describe, expect, test, jest, beforeEach} from '@jest/globals';
+import { fireEvent, render } from '@testing-library/react';
+import { describe, expect, test, jest, beforeEach } from '@jest/globals';
 import GameBoard from "../src/components/GameBoard";
 import { getPitByTestId, getAllPits } from './TestUtils';
 
 describe('GameBoard Component', () => {
-    const pits = Array(14)
-        .fill('4', 0,6)
-        .fill('4', 7, 13);
-    pits[6] = '0';
-    pits[13] = '0';
+    const pits = Array(14).fill(4);
+    pits[6] = 0;
+    pits[13] = 0;
     const handlePitClick = jest.fn();
 
-    // Reset the mock before each test
     beforeEach(() => {
         handlePitClick.mockClear();
     });

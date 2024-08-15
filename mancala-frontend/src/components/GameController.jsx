@@ -1,13 +1,13 @@
-import React, { useState, useEffect} from "react";
-import ApiService from "../services/ApiService";
+import React, { useState, useEffect } from "react";
+import ApiService from "../services/gameApiService";
 import GameBoard from "./GameBoard";
 import PlayerInfo from "./PlayerInfo";
-import {Link, useNavigate} from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './GameController.scss';
 import './../index.scss';
 import { useSnackbar } from 'notistack';
 import GameRules from "./GameRules";
-import { useGame } from '../context/GameContext';
+import { useGame } from '../context/gameContext';
 
 /**
  * GameController component
@@ -18,17 +18,21 @@ const GameController = () => {
     const [gameState, setGameState] = useState(null);
     const [showRules, setShowRules] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
-    const { setIsGameOver, player1Name, player2Name, setPlayer1Name, setPlayer2Name } = useGame();
+    const { setIsGameOver, player1Name, player2Name, setPlayer1Name, setPlayer2Name, gameId } = useGame();
 
     // Fetch the game state from the API once when the component loads
     useEffect(() => {
-        fetchGameState();
-    }, []);
+        if (gameId) {
+            fetchGameState();
+        } else {
+            handleReset(gameId);
+        }
+    }, [gameId]);
 
     // Check if the game is over and navigate to the game over page
     useEffect(() => {
         if (gameState) {
-            const isGameOver = gameState.pits.slice(0, 6).every(pit => pit === 0) || gameState.pits.slice(7, 13).every(pit => pit === 0);
+            const isGameOver = gameState.board.pits.slice(0, 6).every(pit => pit === 0) || gameState.board.pits.slice(7, 13).every(pit => pit === 0);
             if (isGameOver) {
                 setIsGameOver(true);
                 handleReset();
@@ -42,7 +46,7 @@ const GameController = () => {
      * @returns {Promise<void>}
      */
     const fetchGameState = () => {
-        ApiService.getGameState()
+        ApiService.getGameState(gameId)
             .then(response => setGameState(response.data))
             .catch(error => {
                 console.error("Error fetching game state:", error);
@@ -69,9 +73,7 @@ const GameController = () => {
      * @param {number} pitIndex - The index of the pit clicked by the player
      */
     const handleMove = (pitIndex) => {
-        ApiService.makeMove(pitIndex).then((response) => {
-            setGameState(response.data);
-        }).catch((error) => {
+        ApiService.makeMove(gameId, pitIndex).then((response) => setGameState(response.data)).catch((error) => {
             handleApiError(error, "Error making move.");
         });
     };
@@ -80,7 +82,7 @@ const GameController = () => {
      * Resets the game state by making an API call
      */
     const handleReset = (isStartingANewGame = false) => {
-        ApiService.resetGame()
+        ApiService.resetGame(gameId)
             .then(response => {
                 setGameState(response.data);
                 if (isStartingANewGame) {
@@ -93,7 +95,8 @@ const GameController = () => {
             });
     };
 
-    if (!gameState) return <div>Loading...</div>;
+    if (!gameState) return <div>Loading...</div>; // Ensure gameState is defined before rendering
+
     if (showRules) {
         return (
             <div className="show-rules-container">
@@ -108,13 +111,14 @@ const GameController = () => {
             </div>
         );
     }
+
     return (
         <div className={'game-controller-container'}>
             <div className="title">Mancala</div>
             <div className="title player-names"> {player1Name} VS. {player2Name} </div>
 
             <GameBoard className="game-board"
-                       pits={gameState.pits}
+                       pits={gameState.board.pits}
                        currentPlayer={gameState.currentPlayer}
                        onPitClick={handleMove}
             />
@@ -123,9 +127,9 @@ const GameController = () => {
                 <PlayerInfo
                     currentPlayer={gameState.currentPlayer}
                     player1Name={player1Name}
-                    player1Score={gameState.pits[6]}
+                    player1Score={gameState.board.pits[6]}
                     player2Name={player2Name}
-                    player2Score={gameState.pits[13]}
+                    player2Score={gameState.board.pits[13]}
                     onReset={() => handleReset(false)}
                 />
                 <button className="game-rules-button" onClick={() => setShowRules(true)}>Game Rules</button>

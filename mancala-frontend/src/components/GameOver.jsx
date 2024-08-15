@@ -1,17 +1,17 @@
 import React from 'react';
 import './GameOver.scss';
-import {useLocation, useNavigate} from "react-router-dom";
-import {useGame} from "../context/GameContext";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useGame } from "../context/gameContext";
 
 const GameOver = () => {
-    let winner = '';
+    let winner;
     const location = useLocation();
     const navigate = useNavigate();
-    const { player1Name, player2Name } = useGame();
+    const { player1Name, player2Name} = useGame();
 
-    const { gameState } = location.state || { gameState: {pits: Array(14).fill(0)} };
-    const player1Score = gameState.pits[6];
-    const player2Score = gameState.pits[13];
+    const { gameState } = location.state || { gameState: { board: { pits: Array(14).fill(0) } } };
+    const player1Score = gameState.board.pits[6];
+    const player2Score = gameState.board.pits[13];
 
     if (player1Score > player2Score) {
         winner = player1Name;
@@ -20,6 +20,10 @@ const GameOver = () => {
     } else {
         winner = 'It\'s a Tie!';
     }
+
+    const handlePlayAgain = () => {
+        navigate("/game", { state: { isNewGame: true } });
+    };
 
     return (
         <div className="game-over-container">
@@ -30,7 +34,7 @@ const GameOver = () => {
                     <div>{player2Name}: {player2Score}</div>
                 </div>
                 <h2>{winner !== 'It\'s a Tie!' ? `Congratulations, ${winner}!` : winner}</h2>
-                <button className="restart-button" onClick={() => navigate("/game")}>Play Again</button>
+                <button className="restart-button" onClick={handlePlayAgain}>Play Again</button>
             </div>
         </div>
     );

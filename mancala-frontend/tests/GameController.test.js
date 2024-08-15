@@ -2,20 +2,35 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
-import {describe, expect, test, jest, beforeEach} from '@jest/globals';
-import ApiService from "../src/services/ApiService";
+import { describe, expect, test, jest, beforeEach } from '@jest/globals';
+import ApiService from "../src/services/gameApiService";
 import GameController from "../src/components/GameController";
-import {getAllPits} from "./TestUtils";
-import {GameProvider} from "../src/context/GameContext";
+import { getAllPits } from "./TestUtils";
+import {GameProvider, useGame} from "../src/context/gameContext";
 
-jest.mock('../src/services/ApiService');
+jest.mock('../src/services/gameApiService');
 
 describe('GameController Component', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        ApiService.getGameState.mockResolvedValue({ data: { pits: Array(14).fill(4), currentPlayer: 0 } });
-        ApiService.makeMove.mockResolvedValue({ data: { pits: Array(14).fill(4), currentPlayer: 0 } });
-        ApiService.resetGame.mockResolvedValue({ data: { pits: Array(14).fill(4), currentPlayer: 0 } });
+        ApiService.getGameState.mockResolvedValue({
+            data: {
+                board: { pits: Array(14).fill(4) },
+                currentPlayer: 0,
+            }
+        });
+        ApiService.makeMove.mockResolvedValue({
+            data: {
+                board: { pits: Array(14).fill(4) },
+                currentPlayer: 0,
+            }
+        });
+        ApiService.resetGame.mockResolvedValue({
+            data: {
+                board: { pits: Array(14).fill(4) },
+                currentPlayer: 0,
+            }
+        });
 
         render(
             <GameProvider>
@@ -32,7 +47,7 @@ describe('GameController Component', () => {
         expect(screen.getByText('Loading...')).toBeInTheDocument();
         await waitFor(() => {
             const pits = getAllPits();
-            expect(pits).toHaveLength(14)
+            expect(pits).toHaveLength(14);
         });
     });
 
@@ -48,13 +63,26 @@ describe('GameController Component', () => {
         ApiService.getGameState.mockRejectedValue(new Error('API failure'));
         render(
             <GameProvider>
-                <BrowserRouter>
-                    <SnackbarProvider>
-                        <GameController />
-                    </SnackbarProvider>
-                </BrowserRouter>
+                <TestWrapper gameId={1}>
+                    <BrowserRouter>
+                        <SnackbarProvider>
+                            <GameController />
+                        </SnackbarProvider>
+                    </BrowserRouter>
+                </TestWrapper>
             </GameProvider>
         );
         await waitFor(() => expect(screen.getByText('Failed to load game state.')).toBeInTheDocument());
     });
 });
+
+// Helper component to wrap GameController with GameContext state setup
+const TestWrapper = ({ children, gameId }) => {
+    const { setGameId } = useGame();
+
+    React.useEffect(() => {
+        setGameId(gameId);
+    }, [gameId]);
+
+    return children;
+};

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import GameRules from './../src/components/GameRules';
-import {expect} from "@jest/globals";
+import {describe, expect, test} from "@jest/globals";
 
 describe('GameRules Component', () => {
     test('renders game rules correctly', () => {

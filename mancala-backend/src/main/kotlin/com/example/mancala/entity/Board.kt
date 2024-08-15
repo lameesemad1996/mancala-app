@@ -1,7 +1,22 @@
-package com.example.mancala.model
+package com.example.mancala.entity
 
+import jakarta.persistence.ElementCollection
+import jakarta.persistence.Embeddable
+import jakarta.persistence.FetchType
+
+/**
+ * The Board class represents the state of the game board.
+ * It is embedded within the GameState entity and stored in the database.
+ */
+@Embeddable
 data class Board(
-    var pits: Array<Int> = Array(14) { if (it == 6 || it == 13) 0 else 6 }
+
+    /**
+     * Pits array representing the stones in each pit.
+     * The array is stored as a list in the database using JPA's ElementCollection.
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    var pits: List<Int> = List(14) { if (it == 6 || it == 13) 0 else 6 }
 ) {
     companion object {
         const val PLAYER_1 = 0
@@ -35,13 +50,13 @@ data class Board(
 
     /**
      * Move the stones from the pit in a counter-clockwise direction and return the index of the last pit where a stone was sown
-     * @param pitIndex The index of the pit
+     * @param startIndex The index of the pit
      * @return The number of stones in the pit
      */
     fun moveStones(startIndex: Int, currentPlayer: Int): Int {
         var index = startIndex
         var stones = pits[startIndex]
-        pits[startIndex] = 0
+        pits = pits.toMutableList().apply { this[startIndex] = 0 }
 
         while (stones > 0) {
             index = (index + 1) % 14
@@ -52,7 +67,7 @@ data class Board(
                 continue
             }
 
-            pits[index]++
+            pits = pits.toMutableList().apply { this[index]++ }
             stones--
         }
 
@@ -67,18 +82,18 @@ data class Board(
     fun catchingOpponentsStones(pitIndex: Int, currentPlayer: Int) {
         val oppositePitIndex = 12 - pitIndex
         val currentPlayerBigPitIndex = if (currentPlayer == PLAYER_1) PLAYER_1_BIG_PIT_INDEX else PLAYER_2_BIG_PIT_INDEX
-        pits[currentPlayerBigPitIndex] += pits[oppositePitIndex] + pits[pitIndex]
-        pits[oppositePitIndex] = 0
-        pits[pitIndex] = 0
+        pits = pits.toMutableList().apply {
+            this[currentPlayerBigPitIndex] += this[oppositePitIndex] + this[pitIndex]
+            this[oppositePitIndex] = 0
+            this[pitIndex] = 0
+        }
     }
 
     /**
      * Check if the game is over
-     * @param lastPitIndex The index of the last pit where a stone was sown
-     * @param currentPlayer The index of the current player - 0 for player 1, 1 for player 2
      * @return True if the game is over, false otherwise
      */
-    fun isGameOver(): Boolean {
+    fun checkGameOver(): Boolean {
         val isPlayer1Empty = pits.slice(PLAYER_1_PITS).all { it == 0 }
         val isPlayer2Empty = pits.slice(PLAYER_2_PITS).all { it == 0 }
         return isPlayer1Empty || isPlayer2Empty
@@ -88,25 +103,23 @@ data class Board(
      * Allocate the remaining stones to the big pit of the losing player
      */
     fun allocateRemainingStones() {
-        pits[PLAYER_1_BIG_PIT_INDEX] += pits.slice(PLAYER_1_PITS).sum()
-        pits[PLAYER_2_BIG_PIT_INDEX] += pits.slice(PLAYER_2_PITS).sum()
-        for (i in PLAYER_1_PITS) pits[i] = 0
-        for (i in PLAYER_2_PITS) pits[i] = 0
+        pits = pits.toMutableList().apply {
+            this[PLAYER_1_BIG_PIT_INDEX] += this.slice(PLAYER_1_PITS).sum()
+            this[PLAYER_2_BIG_PIT_INDEX] += this.slice(PLAYER_2_PITS).sum()
+            for (i in PLAYER_1_PITS) this[i] = 0
+            for (i in PLAYER_2_PITS) this[i] = 0
+        }
     }
 
+    /**
+     * Reset the board to the initial state
+     */
     fun resetBoard() {
-        for (i in PLAYER_1_PITS) pits[i] = 6
-        for (i in PLAYER_2_PITS) pits[i] = 6
-        pits[PLAYER_1_BIG_PIT_INDEX] = 0
-        pits[PLAYER_2_BIG_PIT_INDEX] = 0
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is Board) return false
-        return pits.contentEquals(other.pits)
-    }
-
-    override fun hashCode(): Int {
-        return pits.contentHashCode()
+        pits = pits.toMutableList().apply {
+            for (i in PLAYER_1_PITS) this[i] = 6
+            for (i in PLAYER_2_PITS) this[i] = 6
+            this[PLAYER_1_BIG_PIT_INDEX] = 0
+            this[PLAYER_2_BIG_PIT_INDEX] = 0
+        }
     }
 }
