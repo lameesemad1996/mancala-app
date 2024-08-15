@@ -58,7 +58,7 @@ const GameController = () => {
     const handleApiError = (error, defaultMessage) => {
         console.error(defaultMessage, error);
         if (error.response && error.response.status === 400) {
-            enqueueSnackbar(error.response.data.error, { variant: "error" });
+            enqueueSnackbar(error.response.data.message, { variant: "error" });
         } else {
             enqueueSnackbar(defaultMessage, { variant: "error" });
         }

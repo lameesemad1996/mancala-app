@@ -15,7 +15,7 @@ repositories {
 
 // Define dependency versions as variables
 val commonsLang3Version = "3.12.0"
-val validationApiVersion = "2.0.1.Final"
+val springMockVersion = "3.1.1"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -24,9 +24,13 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.apache.commons:commons-lang3:$commonsLang3Version")
-    implementation("javax.validation:validation-api:$validationApiVersion")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-webflux") // Required for MockMvc
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude(group = "org.junit.vintage", module = "junit-vintage-engine") // Using JUnit5/Jupiter
+    }
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
@@ -38,4 +42,39 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// Configure a gradle IntegrationTest task
+
+sourceSets {
+    val integrationTest by creating {
+        java.srcDir("src/integration/kotlin")
+        resources.srcDir("src/integration/resources")
+
+        compileClasspath += sourceSets.main.get().output
+        compileClasspath += configurations.testRuntimeClasspath.get()
+        runtimeClasspath += sourceSets.main.get().output
+        runtimeClasspath += configurations.testRuntimeClasspath.get()
+    }
+}
+
+configurations {
+    val integrationTestImplementation by getting {
+        extendsFrom(configurations.testImplementation.get())
+    }
+    val integrationTestRuntimeOnly by getting {
+        extendsFrom(configurations.testRuntimeOnly.get())
+    }
+}
+
+val integrationTest by tasks.creating(Test::class) {
+    description = "Runs the integration tests."
+    group = "verification"
+    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+    classpath = sourceSets["integrationTest"].runtimeClasspath
+    shouldRunAfter(tasks.test)
+}
+
+tasks.check {
+    dependsOn(integrationTest)
 }
