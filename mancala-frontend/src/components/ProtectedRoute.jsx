@@ -4,7 +4,7 @@ import { useGame } from '../context/gameContext';
 import PropTypes from "prop-types";
 
 const ProtectedRoute = ({ children }) => {
-    const { isGameOver, gameId } = useGame(); // Added gameId to the context check
+    const { isGameOver, gameId } = useGame();
 
     // Check if the game is over or if there is no active game; if so, redirect to the start page
     if (!gameId || !isGameOver) {

@@ -16,7 +16,7 @@ const StartPage = () => {
     const [player1Name, setPlayer1NameInput] = useState("");
     const [player2Name, setPlayer2NameInput] = useState("");
     const { enqueueSnackbar } = useSnackbar();
-    const { setPlayer1Name, setPlayer2Name, setGameId } = useGame(); // Added setGameId to useGame
+    const { setPlayer1Name, setPlayer2Name, setGameId } = useGame();
 
     const handleGameStart = () => {
         const player1Validation = sanitizeAndValidatePlayerName(player1Name, enqueueSnackbar);
