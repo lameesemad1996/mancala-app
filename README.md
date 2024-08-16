@@ -6,6 +6,9 @@ Mancala is a classic strategy board game where the objective is to collect the m
 
 The project is designed to allow multiple games to be hosted simultaneously on a single backend instance. The game state is managed and stored in a database, and the frontend interacts with the backend via RESTful API calls.
 
+<img width="1101" alt="image" src="https://github.com/user-attachments/assets/a2d11260-0d30-4f13-acf0-ba2a8cb27e35">
+
+
 ## Table of Contents
 
 - [Features](#features)
@@ -100,21 +103,6 @@ sequenceDiagram
         GameController ->> Router: Navigate to '/game-over'
         Router ->> GameOver: Load GameOver Component
     end
-```
-
-## GameController Logic Flowchart
-
-```mermaid
-flowchart TD
-    Start[Start] --> InitGameState[Initialize Game State]
-    InitGameState --> |gameId exists| FetchState[Fetch Game State from API]
-    InitGameState --> |gameId does not exist| ResetGame[Reset Game]
-    FetchState --> UpdateState[Update State]
-    UpdateState --> CheckGameOver[Check if Game is Over]
-    CheckGameOver --> |Yes| HandleGameOver[Navigate to Game Over]
-    CheckGameOver --> |No| WaitForMove[Wait for Player Move]
-    WaitForMove --> HandleMove[Handle Player Move]
-    HandleMove --> FetchState
 ```
 
 ## Database ER Diagram
