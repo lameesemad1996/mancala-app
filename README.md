@@ -6,7 +6,7 @@ Mancala is a classic strategy board game where the objective is to collect the m
 
 The project is designed to allow multiple games to be hosted simultaneously on a single backend instance. The game state is managed and stored in a database, and the frontend interacts with the backend via RESTful API calls.
 
-<img width="1101" alt="image" src="https://github.com/user-attachments/assets/a2d11260-0d30-4f13-acf0-ba2a8cb27e35">
+<img width="1117" alt="image" src="https://github.com/user-attachments/assets/f3f3d111-49da-47cb-94ee-9f24ca828ea9">
 
 
 ## Table of Contents
