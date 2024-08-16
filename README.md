@@ -63,10 +63,12 @@ graph TD;
         GameServiceKT --> BoardKT[Board.kt]
         GameServiceKT --> GameStateKT[GameState.kt]
         GameControllerKT --> GlobalExceptionHandlerKT[GlobalExceptionHandler.kt]
+        GameServiceKT --> BoardServiceKT[BoardService.kt]
     end
 
     Frontend -->|HTTP Requests| Backend
     GameServiceKT -->|DB Operations| GameStateRepo
+
 ```
 
 ## Game Flow Sequence

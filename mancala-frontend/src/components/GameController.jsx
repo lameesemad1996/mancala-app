@@ -60,11 +60,20 @@ const GameController = () => {
      * @param defaultMessage
      */
     const handleApiError = (error, defaultMessage) => {
-        console.error(defaultMessage, error);
-        if (error.response && error.response.status === 400) {
-            enqueueSnackbar(error.response.data.message, { variant: "error" });
+        if (error.response) {
+            const { status, data } = error.response;
+
+            if (status === 400) {
+                enqueueSnackbar(data.message || "Bad Request", { variant: "error" });
+            } else if (status === 404) {
+                enqueueSnackbar("Resource not found", { variant: "error" });
+            } else if (status === 500) {
+                enqueueSnackbar("Server error, please try again later", { variant: "error" });
+            } else {
+                enqueueSnackbar(defaultMessage, { variant: "error" });
+            }
         } else {
-            enqueueSnackbar(defaultMessage, { variant: "error" });
+            enqueueSnackbar("Network error, please check your connection", { variant: "error" });
         }
     };
 

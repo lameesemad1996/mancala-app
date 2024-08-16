@@ -16,6 +16,7 @@ repositories {
 // Define dependency versions as variables
 val commonsLang3Version = "3.12.0"
 val springMockVersion = "3.1.1"
+val mockitoVersion = "5.3.1"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -32,6 +33,7 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux") // Required for MockMvc
+    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine") // Using JUnit5/Jupiter
     }

@@ -28,4 +28,13 @@ const PlayerInfo = ({ currentPlayer, player1Name, player1Score, player2Name, pla
     );
 };
 
+PlayerInfo.defaultProps = {
+    player1Name: 'Player 1',
+    player2Name: 'Player 2',
+    player1Score: 0,
+    player2Score: 0,
+    currentPlayer: 0,
+    onReset: () => {},
+};
+
 export default PlayerInfo;
