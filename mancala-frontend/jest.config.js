@@ -3,7 +3,7 @@ module.exports = {
         "^.+\\.[tj]sx?$": "babel-jest",
     },
     transformIgnorePatterns: [
-        "/node_modules/(?!(axios|other-module)/)", // Add any other problematic modules here
+        "/node_modules/(?!(axios|other-module)/)",
     ],
     moduleNameMapper: {
         "\\.(css|scss)$": "identity-obj-proxy",

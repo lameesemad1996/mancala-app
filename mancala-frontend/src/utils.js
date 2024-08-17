@@ -1,4 +1,3 @@
-// utils.js
 import DOMPurify from 'dompurify';
 
 export const sanitizeAndValidatePlayerName = (name, enqueueSnackbar, maxLength = 15) => {

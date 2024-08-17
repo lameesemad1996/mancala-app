@@ -1,5 +1,5 @@
 import React from 'react';
-import { jest } from '@jest/globals';  // Add this line
+import { jest } from '@jest/globals';
 import {render, screen, fireEvent, waitFor} from '@testing-library/react';
 import { SnackbarProvider } from 'notistack';
 import { BrowserRouter } from 'react-router-dom';
