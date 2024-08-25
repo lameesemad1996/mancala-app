@@ -21,8 +21,8 @@ data class Board(
     companion object {
         const val PLAYER_1 = 0
         const val PLAYER_2 = 1
-        val PLAYER_1_PITS = 0..5
-        val PLAYER_2_PITS = 7..12
+        val PLAYER_1_SMALL_PITS = 0..5
+        val PLAYER_2_SMALL_PITS = 7..12
         const val PLAYER_1_BIG_PIT_INDEX = 6
         const val PLAYER_2_BIG_PIT_INDEX = 13
 

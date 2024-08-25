@@ -12,23 +12,23 @@ class BoardServiceTest {
     @Test
     fun `should move stones correctly`() {
         val board = Board(pits = mutableListOf(6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0))
-        val lastPitIndex = boardService.moveStones(board, 0, Board.PLAYER_1)
+        val (lastPitIndex, updatedBoard) = boardService.moveStones(board, 0, Board.PLAYER_1)
 
-        assertEquals(0, board.pits[0])
-        assertEquals(7, board.pits[1])
-        assertEquals(7, board.pits[2])
-        assertEquals(1, board.pits[6])
+        assertEquals(0, updatedBoard.pits[0])
+        assertEquals(7, updatedBoard.pits[1])
+        assertEquals(7, updatedBoard.pits[2])
+        assertEquals(1, updatedBoard.pits[6])
         assertEquals(6, lastPitIndex)
     }
 
     @Test
     fun `should capture opponent's stones correctly`() {
         val board = Board(pits = mutableListOf(0, 6, 1, 0, 6, 0, 5, 6, 6, 6, 6, 0, 1, 0))
-        boardService.catchingOpponentsStones(board, 2, Board.PLAYER_1)
+        val updatedBoard = boardService.catchingOpponentsStones(board, 2, Board.PLAYER_1)
 
-        assertEquals(0, board.pits[2])
-        assertEquals(0, board.pits[3])
-        assertEquals(12, board.pits[Board.PLAYER_1_BIG_PIT_INDEX])
+        assertEquals(0, updatedBoard.pits[2])
+        assertEquals(0, updatedBoard.pits[3])
+        assertEquals(12, updatedBoard.pits[Board.PLAYER_1_BIG_PIT_INDEX])
     }
 
     @Test
@@ -46,22 +46,22 @@ class BoardServiceTest {
     @Test
     fun `should allocate remaining stones correctly`() {
         val board = Board(pits = mutableListOf(0, 0, 0, 0, 0, 0, 24, 1, 1, 1, 1, 1, 1, 0))
-        boardService.allocateRemainingStones(board)
+        val updatedBoard = boardService.allocateRemainingStones(board)
 
-        assertEquals(24, board.pits[Board.PLAYER_1_BIG_PIT_INDEX])
-        assertEquals(6, board.pits[Board.PLAYER_2_BIG_PIT_INDEX])
-        assertEquals(0, board.pits[1])
-        assertEquals(0, board.pits[12])
+        assertEquals(24, updatedBoard.pits[Board.PLAYER_1_BIG_PIT_INDEX])
+        assertEquals(6, updatedBoard.pits[Board.PLAYER_2_BIG_PIT_INDEX])
+        assertEquals(0, updatedBoard.pits[1])
+        assertEquals(0, updatedBoard.pits[12])
     }
 
     @Test
     fun `should reset the board correctly`() {
         val board = Board(pits = mutableListOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
-        boardService.resetBoard(board)
+        val updatedBoard = boardService.resetBoard(board)
 
-        assertTrue(board.pits.slice(Board.PLAYER_1_PITS).all { it == 6 })
-        assertTrue(board.pits.slice(Board.PLAYER_2_PITS).all { it == 6 })
-        assertEquals(0, board.pits[Board.PLAYER_1_BIG_PIT_INDEX])
-        assertEquals(0, board.pits[Board.PLAYER_2_BIG_PIT_INDEX])
+        assertTrue(updatedBoard.pits.slice(Board.PLAYER_1_SMALL_PITS).all { it == 6 })
+        assertTrue(updatedBoard.pits.slice(Board.PLAYER_2_SMALL_PITS).all { it == 6 })
+        assertEquals(0, updatedBoard.pits[Board.PLAYER_1_BIG_PIT_INDEX])
+        assertEquals(0, updatedBoard.pits[Board.PLAYER_2_BIG_PIT_INDEX])
     }
 }

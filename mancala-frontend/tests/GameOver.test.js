@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import GameOver from '../src/components/GameOver';
 import { GameProvider } from "../src/context/gameContext";
 import { useGame } from "../src/context/gameContext";
-import {beforeEach, describe, expect, jest, test} from "@jest/globals";
+import {beforeEach, describe, expect, test} from "@jest/globals";
 
 jest.mock('react-router-dom', () => ({
     useLocation: jest.fn(),

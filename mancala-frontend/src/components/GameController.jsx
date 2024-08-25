@@ -5,9 +5,9 @@ import PlayerInfo from "./PlayerInfo";
 import { Link, useNavigate } from 'react-router-dom';
 import './GameController.scss';
 import './../index.scss';
-import { useSnackbar } from 'notistack';
 import GameRules from "./GameRules";
 import { useGame } from '../context/gameContext';
+import useApiErrorHandling from '../hooks/useApiErrorHandling';
 
 /**
  * GameController component
@@ -17,22 +17,27 @@ const GameController = () => {
     const navigate = useNavigate();
     const [gameState, setGameState] = useState(null);
     const [showRules, setShowRules] = useState(false);
-    const { enqueueSnackbar } = useSnackbar();
-    const { setIsGameOver, player1Name, player2Name, setPlayer1Name, setPlayer2Name, gameId } = useGame();
+    const { handleApiError } = useApiErrorHandling();
+    const { setIsGameOver, player1Name, player2Name, setPlayer1Name, setPlayer2Name, gameId, setGameId} = useGame();
+    const isPlayerSideEmpty = (pits, start, end) => pits.slice(start, end).every(pit => pit === 0);
 
     // Fetch the game state from the API once when the component loads
     useEffect(() => {
         if (gameId) {
-            fetchGameState();
-        } else {
-            handleReset(gameId);
+            fetchGameState(gameId);
+        } else if(location.state && location.state.isNewGame) {
+            ApiService.createGame()
+                .then(response => {
+                    setGameId(response.data.id);
+                })
         }
     }, [gameId]);
 
     // Check if the game is over and navigate to the game over page
     useEffect(() => {
         if (gameState) {
-            const isGameOver = gameState.board.pits.slice(0, 6).every(pit => pit === 0) || gameState.board.pits.slice(7, 13).every(pit => pit === 0);
+            const isGameOver = isPlayerSideEmpty(gameState.board.pits, 0, 6) ||
+                isPlayerSideEmpty(gameState.board.pits, 7, 13);
             if (isGameOver) {
                 setIsGameOver(true);
                 handleReset();
@@ -45,36 +50,12 @@ const GameController = () => {
      * Fetches the game state from the API
      * @returns {Promise<void>}
      */
-    const fetchGameState = () => {
+    const fetchGameState = (gameId) => {
         ApiService.getGameState(gameId)
             .then(response => setGameState(response.data))
-            .catch(error => {
-                console.error("Error fetching game state:", error);
-                enqueueSnackbar("Failed to load game state.", { variant: "error" });
+            .catch((error) => {
+                handleApiError(error, "Failed to load game state.");
             });
-    };
-
-    /**
-     * Handles API errors by logging the error and displaying a snackbar with the default message
-     * @param error
-     * @param defaultMessage
-     */
-    const handleApiError = (error, defaultMessage) => {
-        if (error.response) {
-            const { status, data } = error.response;
-
-            if (status === 400) {
-                enqueueSnackbar(data.message || "Bad Request", { variant: "error" });
-            } else if (status === 404) {
-                enqueueSnackbar("Resource not found", { variant: "error" });
-            } else if (status === 500) {
-                enqueueSnackbar("Server error, please try again later", { variant: "error" });
-            } else {
-                enqueueSnackbar(defaultMessage, { variant: "error" });
-            }
-        } else {
-            enqueueSnackbar("Network error, please check your connection", { variant: "error" });
-        }
     };
 
     /**
@@ -82,9 +63,11 @@ const GameController = () => {
      * @param {number} pitIndex - The index of the pit clicked by the player
      */
     const handleMove = (pitIndex) => {
-        ApiService.makeMove(gameId, pitIndex).then((response) => setGameState(response.data)).catch((error) => {
-            handleApiError(error, "Error making move.");
-        });
+        ApiService.makeMove(gameId, pitIndex)
+            .then((response) => setGameState(response.data))
+            .catch((error) => {
+                handleApiError(error, "Error making move.");
+            });
     };
 
     /**

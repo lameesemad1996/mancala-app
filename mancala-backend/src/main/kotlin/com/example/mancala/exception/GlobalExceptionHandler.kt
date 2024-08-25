@@ -25,6 +25,13 @@ class GlobalExceptionHandler {
         return ResponseEntity(errorResponse, HttpStatus.BAD_REQUEST)
     }
 
+    @ExceptionHandler(GameNotFoundException::class)
+    fun handleGameNotFoundException(ex: GameNotFoundException): ResponseEntity<Map<String, String?>> {
+        logger.error("GameNotFoundException: ${ex.message}")
+        val errorResponse = mapOf("message" to ex.message)
+        return ResponseEntity(errorResponse, HttpStatus.NOT_FOUND)
+    }
+
     @ExceptionHandler(Exception::class)
     fun handleGeneralException(ex: Exception): ResponseEntity<Map<String, String>> {
         logger.error("Exception: ${ex.message}", ex)

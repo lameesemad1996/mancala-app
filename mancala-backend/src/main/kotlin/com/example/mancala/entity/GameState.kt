@@ -19,5 +19,5 @@ data class GameState(
     @Column(name = "active")
     var active: Boolean = true
 ) {
-    constructor() : this(null) // No-arg constructor for JPA
+    constructor() : this(null)
 }
