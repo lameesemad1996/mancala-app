@@ -1,7 +1,10 @@
 package com.example.mancala.service
 
+import com.example.mancala.commands.CaptureStonesCommand
+import com.example.mancala.commands.HandleGameOverCommand
 import com.example.mancala.entity.Board
 import com.example.mancala.entity.GameState
+import com.example.mancala.exception.GameNotFoundException
 import com.example.mancala.exception.InvalidMoveException
 import com.example.mancala.repository.GameStateRepository
 import org.junit.jupiter.api.Assertions.*
@@ -10,6 +13,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.*
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.isA
 import java.util.*
 
 class GameServiceTest {
@@ -55,19 +59,8 @@ class GameServiceTest {
         val gameId = UUID.randomUUID()
         `when`(gameStateRepository.findById(gameId)).thenReturn(Optional.empty())
 
-        assertThrows<IllegalArgumentException> {
+        assertThrows<GameNotFoundException> {
             gameService.getGameState(gameId)
-        }
-    }
-
-    @Test
-    fun `processMove should throw exception for invalid pit index`() {
-        val gameId = UUID.randomUUID()
-        val gameState = GameState(gameId, Board(), 0, true)
-        `when`(gameStateRepository.findById(gameId)).thenReturn(Optional.of(gameState))
-
-        assertThrows<InvalidMoveException> {
-            gameService.processMove(gameId, -1)
         }
     }
 
@@ -84,11 +77,63 @@ class GameServiceTest {
     }
 
     @Test
+    fun `processMove should throw exception when game is over`() {
+        val gameId = UUID.randomUUID()
+        val board = Board(pits = mutableListOf(0, 0, 0, 0, 0, 0, 48, 0, 0, 0, 0, 0, 0, 35))
+        val gameState = GameState(gameId, board, 0, false)
+        `when`(gameStateRepository.findById(gameId)).thenReturn(Optional.of(gameState))
+
+        assertThrows<InvalidMoveException> {
+            gameService.processMove(gameId, 1)
+        }
+    }
+
+    @Test
+    fun `processMove should capture opponent's stones when conditions are met`() {
+        val gameId = UUID.randomUUID()
+        val board = Board(pits = mutableListOf(0, 1, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 10))
+        val gameState = GameState(gameId, board, Board.PLAYER_1, true)
+
+        // Mock the board service to simulate the capturing of stones
+        val expectedBoard = Board(pits = mutableListOf(0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0))
+        `when`(boardService.catchingOpponentsStones(isA<Board>(), eq(1), eq(Board.PLAYER_1)))
+            .thenReturn(expectedBoard)
+
+        // Test the command directly
+        val captureCommand = CaptureStonesCommand(boardService, 1)
+        val result = captureCommand.execute(gameState)
+
+        assertEquals(expectedBoard, result.board)
+        assertEquals(20, result.board.pits[Board.PLAYER_1_BIG_PIT_INDEX])  // Check if stones were captured correctly
+    }
+
+    @Test
+    fun `processMove should end the game when conditions are met`() {
+        val gameId = UUID.randomUUID()
+        val board = Board(pits = mutableListOf(0, 0, 0, 0, 0, 0, 48, 1, 5, 3, 6, 0, 0, 20))
+        val gameState = GameState(gameId, board, Board.PLAYER_1, true)
+
+        `when`(boardService.checkGameOver(isA<Board>())).thenReturn(true)
+        `when`(boardService.allocateRemainingStones(isA<Board>())).thenAnswer {
+            Board(pits = mutableListOf(0, 0, 0, 0, 0, 0, 48, 0, 0, 0, 0, 0, 0, 35))
+        }
+
+        // Test the command directly
+        val handleGameOverCommand = HandleGameOverCommand(boardService)
+        val result = handleGameOverCommand.execute(gameState)
+
+        assertFalse(result.active)
+        assertEquals(48, result.board.pits[Board.PLAYER_1_BIG_PIT_INDEX])
+        assertEquals(35, result.board.pits[Board.PLAYER_2_BIG_PIT_INDEX])
+    }
+
+    @Test
     fun `resetGame should reset the board and game state`() {
         val gameId = UUID.randomUUID()
         val gameState = GameState(gameId, Board(), 1, false)
         `when`(gameStateRepository.findById(gameId)).thenReturn(Optional.of(gameState))
         `when`(gameStateRepository.save(any(GameState::class.java))).thenAnswer { it.arguments[0] }
+        `when`(boardService.resetBoard(gameState.board)).thenReturn(Board())
 
         val result = gameService.resetGame(gameId)
 

@@ -17,6 +17,17 @@ const StartPage = () => {
     const [player2Name, setPlayer2NameInput] = useState("");
     const { enqueueSnackbar } = useSnackbar();
     const { setPlayer1Name, setPlayer2Name, setGameId } = useGame();
+    const createNewGame = () => {
+        ApiService.createGame()
+            .then(response => {
+                setGameId(response.data.id);
+                navigate('/game');
+            })
+            .catch(error => {
+                console.error("Error creating game:", error);
+                enqueueSnackbar("Failed to start a new game.", { variant: "error" });
+            });
+    };
 
     const handleGameStart = () => {
         const player1Validation = sanitizeAndValidatePlayerName(player1Name, enqueueSnackbar);
@@ -32,15 +43,7 @@ const StartPage = () => {
         setPlayer2Name(player2Validation.sanitizedName);
 
         // Create a new game and navigate to the game page
-        ApiService.createGame()
-            .then(response => {
-                setGameId(response.data.id);
-                navigate('/game');
-            })
-            .catch(error => {
-                console.error("Error creating game:", error);
-                enqueueSnackbar("Failed to start a new game.", { variant: "error" });
-            });
+        createNewGame();
     };
 
     return (
