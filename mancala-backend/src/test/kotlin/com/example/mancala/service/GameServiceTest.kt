@@ -1,5 +1,7 @@
 package com.example.mancala.service
 
+import com.example.mancala.commands.CaptureStonesCommand
+import com.example.mancala.commands.HandleGameOverCommand
 import com.example.mancala.entity.Board
 import com.example.mancala.entity.GameState
 import com.example.mancala.exception.GameNotFoundException
@@ -75,7 +77,19 @@ class GameServiceTest {
     }
 
     @Test
-    fun `handleCaptureIfNeeded should capture opponent's stones when conditions are met`() {
+    fun `processMove should throw exception when game is over`() {
+        val gameId = UUID.randomUUID()
+        val board = Board(pits = mutableListOf(0, 0, 0, 0, 0, 0, 48, 0, 0, 0, 0, 0, 0, 35))
+        val gameState = GameState(gameId, board, 0, false)
+        `when`(gameStateRepository.findById(gameId)).thenReturn(Optional.of(gameState))
+
+        assertThrows<InvalidMoveException> {
+            gameService.processMove(gameId, 1)
+        }
+    }
+
+    @Test
+    fun `processMove should capture opponent's stones when conditions are met`() {
         val gameId = UUID.randomUUID()
         val board = Board(pits = mutableListOf(0, 1, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 10))
         val gameState = GameState(gameId, board, Board.PLAYER_1, true)
@@ -85,24 +99,28 @@ class GameServiceTest {
         `when`(boardService.catchingOpponentsStones(isA<Board>(), eq(1), eq(Board.PLAYER_1)))
             .thenReturn(expectedBoard)
 
-        val result = gameService.handleCaptureIfNeeded(gameState, 1)
+        // Test the command directly
+        val captureCommand = CaptureStonesCommand(boardService, 1)
+        val result = captureCommand.execute(gameState)
 
         assertEquals(expectedBoard, result.board)
         assertEquals(20, result.board.pits[Board.PLAYER_1_BIG_PIT_INDEX])  // Check if stones were captured correctly
     }
 
     @Test
-    fun `handleGameOverIfNeeded should end the game when conditions are met`() {
+    fun `processMove should end the game when conditions are met`() {
         val gameId = UUID.randomUUID()
-        val board = Board(pits = mutableListOf(0,0,0,0,0,0,48,1,5,3,6,0,0,20))
+        val board = Board(pits = mutableListOf(0, 0, 0, 0, 0, 0, 48, 1, 5, 3, 6, 0, 0, 20))
         val gameState = GameState(gameId, board, Board.PLAYER_1, true)
 
         `when`(boardService.checkGameOver(isA<Board>())).thenReturn(true)
         `when`(boardService.allocateRemainingStones(isA<Board>())).thenAnswer {
-            Board(pits = mutableListOf(0,0,0,0,0,0,48,0,0,0,0,0,0,35))
+            Board(pits = mutableListOf(0, 0, 0, 0, 0, 0, 48, 0, 0, 0, 0, 0, 0, 35))
         }
 
-        val result = gameService.handleGameOverIfNeeded(gameState)
+        // Test the command directly
+        val handleGameOverCommand = HandleGameOverCommand(boardService)
+        val result = handleGameOverCommand.execute(gameState)
 
         assertFalse(result.active)
         assertEquals(48, result.board.pits[Board.PLAYER_1_BIG_PIT_INDEX])

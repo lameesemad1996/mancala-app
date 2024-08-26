@@ -1,9 +1,12 @@
 package com.example.mancala.service
 
-import com.example.mancala.exception.InvalidMoveException
+import com.example.mancala.commands.CaptureStonesCommand
+import com.example.mancala.commands.HandleGameOverCommand
+import com.example.mancala.commands.MoveStonesCommand
 import com.example.mancala.entity.Board
 import com.example.mancala.entity.GameState
 import com.example.mancala.exception.GameNotFoundException
+import com.example.mancala.exception.InvalidMoveException
 import com.example.mancala.repository.GameStateRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -11,7 +14,10 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @Service
-class GameService(private val gameStateRepository: GameStateRepository, private val boardService: BoardService) {
+class GameService(
+    private val gameStateRepository: GameStateRepository,
+    private val boardService: BoardService
+) {
 
     private val logger = LoggerFactory.getLogger(GameService::class.java)
 
@@ -57,21 +63,25 @@ class GameService(private val gameStateRepository: GameStateRepository, private 
     fun processMove(gameId: UUID, pitIndex: Int): GameState {
         logger.info("Processing move for game ID: $gameId at pit index: $pitIndex")
         var gameState = getGameState(gameId)
-        val board = gameState.board
-
         validateMove(gameState, pitIndex)
         logger.info("Move validated for pit index: $pitIndex")
 
-        val (lastPitIndex, updatedBoard) = boardService.moveStones(board, pitIndex, gameState.currentPlayer)
-        gameState.board = updatedBoard
-        logger.info("Stones moved, last pit index: $lastPitIndex")
+        // Execute MoveStonesCommand and get the updated GameState
+        val moveCommand = MoveStonesCommand(boardService, pitIndex)
+        gameState = moveCommand.execute(gameState)
+        logger.info("Stones moved, last pit index: ${moveCommand.lastPitIndex}")
 
-        gameState = handleCaptureIfNeeded(gameState, lastPitIndex)
-        gameState = handleGameOverIfNeeded(gameState)
+        // Execute CaptureStonesCommand using the last pit index from MoveStonesCommand
+        val captureCommand = CaptureStonesCommand(boardService, moveCommand.lastPitIndex)
+        gameState = captureCommand.execute(gameState)
+
+        // Execute HandleGameOverCommand to check and handle game-over conditions
+        val handleGameOverCommand = HandleGameOverCommand(boardService)
+        gameState = handleGameOverCommand.execute(gameState)
 
         // Check if the current player gets another turn
         // Increment the currentPlayer if last stone does not land in the current player's big pit
-        if (!Board.isLastStoneInBigPit(lastPitIndex, gameState.currentPlayer)) {
+        if (!Board.isLastStoneInBigPit(moveCommand.lastPitIndex, gameState.currentPlayer)) {
             gameState.currentPlayer = (gameState.currentPlayer + 1) % 2
             logger.info("Next player's turn: Player ${gameState.currentPlayer + 1}")
         }
@@ -97,44 +107,6 @@ class GameService(private val gameStateRepository: GameStateRepository, private 
             logger.warn("Invalid move: Player ${gameState.currentPlayer + 1} selected an empty pit")
             throw InvalidMoveException("Invalid move. You cannot select an empty pit.")
         }
-    }
-
-    /**
-     * Handle capturing stones from the opponent's opposite pit
-     * @param gameState The current game state
-     * @param lastPitIndex The index of the last pit where a stone was sown
-     * @return The updated game state
-     */
-    fun handleCaptureIfNeeded(gameState: GameState, lastPitIndex: Int): GameState {
-        val board = gameState.board
-        val stonesInLastPit = board.pits[lastPitIndex]
-        val isPitOnCurrentPlayerSide = Board.isPitOnCurrentPlayerSide(lastPitIndex, gameState.currentPlayer)
-        val playersBigPit = if (gameState.currentPlayer == Board.PLAYER_1) Board.PLAYER_1_BIG_PIT_INDEX else Board.PLAYER_2_BIG_PIT_INDEX
-
-        // Check capture condition
-        if (lastPitIndex <= 12 && stonesInLastPit == 1 && isPitOnCurrentPlayerSide && lastPitIndex != playersBigPit) {
-            logger.info("Capture condition met for player ${gameState.currentPlayer + 1}, capturing stones at pit $lastPitIndex")
-            val updatedBoard = boardService.catchingOpponentsStones(board, lastPitIndex, gameState.currentPlayer)
-            gameState.board = updatedBoard
-        }
-
-        return gameState
-    }
-
-    /**
-     * Handle game over condition
-     * @param gameState The current game state
-     * @return The updated game state
-     */
-    fun handleGameOverIfNeeded(gameState: GameState): GameState {
-        val board = gameState.board
-        if (boardService.checkGameOver(board)) {
-            gameState.active = false
-            val updatedBoard = boardService.allocateRemainingStones(board)
-            logger.info("Game over detected for game ID: ${gameState.id}")
-            gameState.board = updatedBoard
-        }
-        return gameState
     }
 
     /**
